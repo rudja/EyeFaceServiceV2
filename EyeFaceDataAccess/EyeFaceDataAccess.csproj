@@ -54,7 +54,6 @@
     <Compile Include="Attraction.cs">
       <DependentUpon>EyeFaceDataModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Class1.cs" />
     <Compile Include="EyeFaceDataModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

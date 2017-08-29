@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1587C73B-1B41-413B-9372-3F601CD5748C}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>EyeFaceApplication</RootNamespace>
+    <AssemblyName>EyeFaceApplication</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <PublishUrl>publier\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Emgu.CV.UI, Version=3.2.0.2721, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
+      <HintPath>..\packages\Emgu.CV.3.2.0.2721\lib\net35\Emgu.CV.UI.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Emgu.CV.World, Version=3.2.0.2721, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
+      <HintPath>..\packages\Emgu.CV.3.2.0.2721\lib\net35\Emgu.CV.World.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ZedGraph, Version=5.1.5.28844, Culture=neutral, PublicKeyToken=02a83cbd123fcd60, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZedGraph.5.1.5\lib\ZedGraph.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="EfCsSDK.cs" />
+    <Compile Include="ErCsSDK.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="eyefacesdk\config.ini" />
+    <None Include="eyefacesdk\include\curl\.gitignore" />
+    <None Include="eyefacesdk\include\curl\curl.h" />
+    <None Include="eyefacesdk\include\curl\curlver.h" />
+    <None Include="eyefacesdk\include\curl\easy.h" />
+    <None Include="eyefacesdk\include\curl\Makefile.am" />
+    <None Include="eyefacesdk\include\curl\mprintf.h" />
+    <None Include="eyefacesdk\include\curl\multi.h" />
+    <None Include="eyefacesdk\include\curl\stdcheaders.h" />
+    <None Include="eyefacesdk\include\curl\system.h" />
+    <None Include="eyefacesdk\include\curl\typecheck-gcc.h" />
+    <None Include="eyefacesdk\include\er_explink.h" />
+    <None Include="eyefacesdk\include\er_image.h" />
+    <None Include="eyefacesdk\include\eyeface-hasp.h" />
+    <None Include="eyefacesdk\include\EyeFace.h" />
+    <None Include="eyefacesdk\include\EyeFaceExpert.h" />
+    <None Include="eyefacesdk\include\EyeFaceExpertType.h" />
+    <None Include="eyefacesdk\include\EyeFaceType.h" />
+    <None Include="eyefacesdk\include\hasp-api.h" />
+    <None Include="eyefacesdk\include\rapidjson\allocators.h" />
+    <None Include="eyefacesdk\include\rapidjson\document.h" />
+    <None Include="eyefacesdk\include\rapidjson\encodedstream.h" />
+    <None Include="eyefacesdk\include\rapidjson\encodings.h" />
+    <None Include="eyefacesdk\include\rapidjson\error\en.h" />
+    <None Include="eyefacesdk\include\rapidjson\error\error.h" />
+    <None Include="eyefacesdk\include\rapidjson\filereadstream.h" />
+    <None Include="eyefacesdk\include\rapidjson\filewritestream.h" />
+    <None Include="eyefacesdk\include\rapidjson\fwd.h" />
+    <None Include="eyefacesdk\include\rapidjson\internal\biginteger.h" />
+    <None Include="eyefacesdk\include\rapidjson\internal\diyfp.h" />
+    <None Include="eyefacesdk\include\rapidjson\internal\dtoa.h" />
+    <None Include="eyefacesdk\include\rapidjson\internal\ieee754.h" />
+    <None Include="eyefacesdk\include\rapidjson\internal\itoa.h" />
+    <None Include="eyefacesdk\include\rapidjson\internal\meta.h" />
+    <None Include="eyefacesdk\include\rapidjson\internal\pow10.h" />
+    <None Include="eyefacesdk\include\rapidjson\internal\regex.h" />
+    <None Include="eyefacesdk\include\rapidjson\internal\stack.h" />
+    <None Include="eyefacesdk\include\rapidjson\internal\strfunc.h" />
+    <None Include="eyefacesdk\include\rapidjson\internal\strtod.h" />
+    <None Include="eyefacesdk\include\rapidjson\internal\swap.h" />
+    <None Include="eyefacesdk\include\rapidjson\istreamwrapper.h" />
+    <None Include="eyefacesdk\include\rapidjson\memorybuffer.h" />
+    <None Include="eyefacesdk\include\rapidjson\memorystream.h" />
+    <None Include="eyefacesdk\include\rapidjson\msinttypes\inttypes.h" />
+    <None Include="eyefacesdk\include\rapidjson\msinttypes\stdint.h" />
+    <None Include="eyefacesdk\include\rapidjson\ostreamwrapper.h" />
+    <None Include="eyefacesdk\include\rapidjson\pointer.h" />
+    <None Include="eyefacesdk\include\rapidjson\prettywriter.h" />
+    <None Include="eyefacesdk\include\rapidjson\rapidjson.h" />
+    <None Include="eyefacesdk\include\rapidjson\reader.h" />
+    <None Include="eyefacesdk\include\rapidjson\schema.h" />
+    <None Include="eyefacesdk\include\rapidjson\stream.h" />
+    <None Include="eyefacesdk\include\rapidjson\stringbuffer.h" />
+    <None Include="eyefacesdk\include\rapidjson\writer.h" />
+    <None Include="eyefacesdk\include\socket\SocketClient.h" />
+    <None Include="eyefacesdk\include\socket\SocketServer.h" />
+    <None Include="eyefacesdk\lib\hasp-api.lib" />
+    <None Include="eyefacesdk\models\CNN_FACEATRS_BGR_48x48_NONE_LIN_EXP59_enc.dat" />
+    <None Include="eyefacesdk\models\landmarkrs_l19_50x50.dat" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5.2 %28x86 et x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="eyefacesdk\lib\EyeFace.dll" />
+    <Content Include="eyefacesdk\lib\hasp-api.dll" />
+    <Content Include="eyefacesdk\lib\haspvlib_108842.dll" />
+    <Content Include="eyefacesdk\lib\hasp_rt.exe" />
+    <Content Include="eyefacesdk\lib\libopenblas.dll" />
+    <Content Include="eyefacesdk\models\wb_lc_ofs_face_M10.0+KA-x64.dll" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\Emgu.CV.3.2.0.2721\build\Emgu.CV.targets" Condition="Exists('..\packages\Emgu.CV.3.2.0.2721\build\Emgu.CV.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Ce projet fait référence à des packages NuGet qui sont manquants sur cet ordinateur. Utilisez l'option de restauration des packages NuGet pour les télécharger. Pour plus d'informations, consultez http://go.microsoft.com/fwlink/?LinkID=322105. Le fichier manquant est : {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Emgu.CV.3.2.0.2721\build\Emgu.CV.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Emgu.CV.3.2.0.2721\build\Emgu.CV.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
