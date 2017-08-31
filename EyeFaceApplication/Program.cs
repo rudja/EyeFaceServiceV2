@@ -51,6 +51,12 @@ using Newtonsoft.Json.Linq;
 using System.Data.SqlClient;
 using System.Threading;
 
+using MongoDB.Bson;
+using MongoDB.Driver;
+using MongoDB.Driver.Core;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace EyeFaceApplication
 {
     class Program
@@ -58,6 +64,9 @@ namespace EyeFaceApplication
         private const string EYEFACE_DIR = "..\\..\\eyefacesdk";
         //private const string EYEFACE_DIR = "C:\\Users\\Innovation\\Documents\\GitHub\\EyeFaceApplication\\eyefacesdk";
         private const string CONFIG_INI = "config.ini";
+
+        //My constant
+        private const double limitHour = -1;
 
         public static int Main(string[] args)
         {
@@ -67,9 +76,10 @@ namespace EyeFaceApplication
 
 
                 int personID = 1;
-                int projectID = 3;
+                //int projectID = 3;
                 int attention_time = 0;
                 int milliseconds = 1000;
+                string emotion = "Not Smiling";
            
                 while (!(Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape))
                 {
@@ -88,12 +98,14 @@ namespace EyeFaceApplication
                     person.WriteValue(23);
 
                     person.WritePropertyName("Emotion");
-                    person.WriteValue("Smiling");
+                    //person.WriteValue("Smiling");
+                    //person.WriteValue("Not Smiling");
+                    person.WriteValue(emotion);
 
                     person.WritePropertyName("Ancestry");
                     person.WriteValue("Africain");
 
-                    person.WritePropertyName("Attention_time");
+                    person.WritePropertyName("Attention_Time");
                     person.WriteValue(attention_time);
 
                     person.WritePropertyName("ProjectName");
@@ -107,12 +119,20 @@ namespace EyeFaceApplication
                     saveDataIntoEyeFaceDB(o);
 
                     attention_time += 1;
+                    if (attention_time >= 10 & attention_time <= 20)
+                    {
+                        emotion = "Smiling";
+                    } else if (attention_time > 20)
+                    {
+                        emotion = "Not Smiling";
+                    } else
+                    {
+                        //Nothing
+                    }
+                    //personID += 1;
 
                     Thread.Sleep(milliseconds);
                 }
-
-
-
                 
             }
             catch (Exception e)
@@ -184,177 +204,136 @@ namespace EyeFaceApplication
             bitmap.Save(imageSavePath);
         }
 
-        private static bool satisfactionFunction(SqlConnection cnn, string emotion)
+        private static int checkSatisfaction(string emotion)
         {
-            string cmdString = "INSERT INTO dbo.People (PersonID, Gender, Ancestry, Age) VALUES (@personID, @gender, @ancestry, @age)";
-
-            bool result = false;
             if (emotion == "Smiling")
             {
-                return result = true;
+                //Return 1 if the person is smiling
+                return 1;
             } else
             {
-                return result = false;
+                //Return 0 if the person is not smiling
+                return 0;
             }
         }
 
-        private static int retrievePersonIDFunction(SqlConnection cnn, int personID)
+
+        private static async void saveDataIntoEyeFaceDB(JObject o)
         {
-            SqlCommand retrieve_Person_ID = new SqlCommand("SELECT ID_People FROM People WHERE ([PersonID] = @person_ID)", cnn);
-            retrieve_Person_ID.Parameters.AddWithValue("@person_ID", personID);
-            return (int)retrieve_Person_ID.ExecuteScalar();
-        }
+            //Connection to our database
+            var connectionString = "mongodb://localhost";
+            MongoClient client = new MongoClient(connectionString);
+            var db = client.GetDatabase("EyeFaceDB");
+            var collection = db.GetCollection<People>("People");
 
-        private static int retrieveProjectIDFunction(SqlConnection cnn, string project_Name)
-        {
-            SqlCommand retrieve_Project_ID = new SqlCommand("SELECT ID_Projects FROM Projects WHERE ([Name] = @project_Name)", cnn);
-            retrieve_Project_ID.Parameters.AddWithValue(@project_Name, project_Name);
-            return (int)retrieve_Project_ID.ExecuteScalar();
-        }
+            int satisfaction = 0;
+            ////Check of satisfied value
+            //ENHANCE! We will in the future directly get the int value from emotion. 
+            satisfaction = checkSatisfaction((string)o.GetValue("Emotion"));
 
-        private static void saveDataIntoEyeFaceDB(JObject o)
-        {
-            DateTime previousDate = DateTime.MinValue;
-            //Variables for the Persons table  
-            int personID = (int)o.GetValue("PersonID");
-            string gender = o.GetValue("Gender").ToString();
-            string ancestry = o.GetValue("Ancestry").ToString();
-            int age = (int)o.GetValue("Age");
-            string emotion = o.GetValue("Emotion").ToString();
-            DateTime dateUTC = DateTime.UtcNow;
+            var filter = Builders<People>.Filter.Eq("person_id", (int)o.GetValue("PersonID"));
+            var result = await collection.Find(filter).ToListAsync();
 
-            //satisfied and satisfactionNow are int because we can not store boolean type into database.
-            int satisfied = 0;
-            int satisfactionNow = 0;
-            float attention_time = 0;
-            string projectName = (string)o.GetValue("ProjectName");
-
-            int id_project = 0;
-            int id_people = 0;
-
-            //Check the value of emotion
-            if (emotion == "Smiling")
+            if (result.Count() != 0)
             {
-                satisfactionNow = 1;
-            } else
-            {
-                satisfactionNow = 0;
-            }
-
-            string connectionString = null;
-            connectionString = "Server= DESKTOP-G255T7U\\SQLEXPRESS; Database= EyeFaceDB;Trusted_Connection=true";
-            SqlConnection cnn = new SqlConnection(connectionString);
-
-            string cmdString = "INSERT INTO dbo.People (PersonID, Gender, Ancestry, Age) VALUES (@personID, @gender, @ancestry, @age)" +
-                               "INSERT INTO dbo.Attractions (DateUTC, Satisfied, Attention_Time, PersonID, ProjectName)" +
-                               "VALUES (@DateUTC, @Satisfied, @Attention_Time, @PersonID, @ProjectID);";
-
-            //String to delete all data from a table
-            //string cmdStringPerson = "DELETE FROM Persons";
-
-            cnn.Open();
-            id_people = retrievePersonIDFunction(cnn, personID);
-            id_project = retrieveProjectIDFunction(cnn, projectName);
-
-            //Check if the person already exists or not
-            SqlCommand check_PersonID = new SqlCommand("SELECT * FROM People WHERE ([PersonID] = @personID)", cnn);
-            check_PersonID.Parameters.AddWithValue("@personID", personID);
-            SqlDataReader reader = check_PersonID.ExecuteReader();
-            if (!reader.HasRows)
-            {
-                //User does not exist. We will create a table for him. (People and Attractions table)
-                reader.Close();
-                using (SqlCommand comm = new SqlCommand(cmdString, cnn))
+                //This person already exist in the database
+                //Now we will check if their was already an attraction with THIS project in THE hour
+                var builder = Builders<People>.Filter;
+                filter = builder.Eq("person_id", (int)o.GetValue("PersonID"))
+                         & builder.Eq("attractions.project_name", (string)o.GetValue("ProjectName"))
+                         & builder.Gt("attractions.dateUTC", DateTime.UtcNow.AddHours(limitHour));
+                         //& builder.Eq("attractions.satisfied", 0);
+                result = await collection.Find(filter).ToListAsync();
+                //Console.Write("Number of attraction on same project in this our : ");
+                //Console.WriteLine(result.Count());
+                if (result.Count() != 0)
                 {
-                    try
+                    //We found normally one table where the user stay on the same project.
+                    //We will update it with the new value of satisfied variable if he is satisfied now.
+                    Console.WriteLine("Let's see if you are satisfied now!");
+                    //Console.WriteLine(satisfaction);
+                    if (satisfaction == 1)
                     {
-                        //cnn.Open();
-                        comm.Parameters.AddWithValue("@personID", personID);
-                        comm.Parameters.AddWithValue("@gender", gender);
-                        comm.Parameters.AddWithValue("@ancestry", ancestry);
-                        comm.Parameters.AddWithValue("@age", age);
-
-                        comm.Parameters.AddWithValue("@DateUTC", dateUTC);
-                        comm.Parameters.AddWithValue("@Satisfied", satisfactionNow);
-                        comm.Parameters.AddWithValue("@Attention_Time", attention_time);
-                        comm.Parameters.AddWithValue("@PersonID", id_people);
-                        comm.Parameters.AddWithValue("@ProjectName", id_project);
-                        comm.ExecuteNonQuery();
-                        Console.WriteLine("This person have been saved!");
-                        cnn.Close();
-                    }
-                    catch (Exception e)
+                        //I decided to only write 1 in the database. 
+                        //If the person was not smiling during the interaction, the final user will only see 0 in database. 
+                        Console.WriteLine("You are now smiling!");
+                        var update = Builders<People>.Update.Set("attractions.$.satisfied", satisfaction)
+                                                            .Set("attractions.$.attention_time", (double)o.GetValue("Attention_Time"));
+                        var result1 = await collection.UpdateOneAsync(filter, update);
+                    } else
                     {
-                        Console.WriteLine(e);
+                        //We do nothing and let this field to 0 or 1 during one hour. 
+                        //After this hour, we will not be able to change it anymore, so we will have the real
+                        //result about the fact that this person smile or not during his experience
+                        Console.WriteLine("You are NOT smiling!");
+                        var update = Builders<People>.Update.Set("attractions.$.attention_time", (double)o.GetValue("Attention_Time"));
+                        var result1 = await collection.UpdateOneAsync(filter, update);
                     }
+                }
+                else
+                {
+                    //We will create a new attraction row because this person is coming back
+                    //to this project. In my point of view this is a new interaction.
+                    Console.WriteLine("You were not on this project recently");
+                    Attraction new_Attraction = new Attraction
+                    {
+                        project_name = (string)o.GetValue("ProjectName"),
+                        dateUTC = DateTime.UtcNow,
+                        attention_time = (double)o.GetValue("Attention_Time"),
+                        satisfied = satisfaction
+                    };
+                    filter = builder.Eq("person_id", (int)o.GetValue("PersonID"));
+                    var update = Builders<People>.Update.Push("attractions", new_Attraction);
+                    await collection.FindOneAndUpdateAsync(filter, update);
                 }
             }
             else
             {
-                //User already exists. We will create or update an Attractions table. 
-                //We need to catch the correct Attractions table if exists. 
-                reader.Close();
-                Console.WriteLine("This person already exists in the database.");
-                try
+                //This person does not exist yet. We will create a table for him.
+                Attraction person_Attraction = new Attraction
                 {
-                    //Check if the last resutl was in the last hour or not
-                    SqlCommand find_Attractions_table = new SqlCommand("SELECT DateUTC, Satisfied FROM Attractions WHERE ([ID_People] = @PersonID AND [ID_Projects] = @ProjectID)", cnn);
-                    find_Attractions_table.Parameters.AddWithValue("@PersonID", id_people);
-                    find_Attractions_table.Parameters.AddWithValue("@ProjectID", id_project);
+                    project_name = (string)o.GetValue("ProjectName"),
+                    dateUTC = DateTime.UtcNow,
+                    attention_time = (double)o.GetValue("Attention_Time"),
+                    satisfied = satisfaction
+                };
+                List<Attraction> myList = new List<Attraction>();
+                myList.Add(person_Attraction);
 
-                    SqlDataReader read_Hour_Satisfaction = find_Attractions_table.ExecuteReader();
-                    while (read_Hour_Satisfaction.Read())
-                    {
-                        //While we find corresponding Attractions table
-                        previousDate = (DateTime)read_Hour_Satisfaction[0];
-                        satisfied = (int)read_Hour_Satisfaction[1];  //In database, satisfied is a int field
-
-                        if ((dateUTC - previousDate).Hours > 1)
-                        {
-                            //If there is less than 1 hour between now and the attraction date
-                            //We update the "Satisfied" field
-                            //Check if this person have already smiled in the hour and on this project
-                            if (satisfied == 1)
-                            {
-                                //We do nothing because the user was already satisfied
-                            }
-                            else
-                            {
-                                //The user was not satisfied yet. So we update the field [Satisfied], of the current table
-                                SqlCommand update_Satisfied_Field = new SqlCommand("UPDATE Attractions SET [Satisfied] = @Satisfied WHERE ([PersonID] = @personID AND" +
-                                                   "[ProjectID] = @projectID)", cnn);
-                                update_Satisfied_Field.Parameters.AddWithValue("@personID", personID);
-                                update_Satisfied_Field.Parameters.AddWithValue("@projectID", projectID);
-                                update_Satisfied_Field.Parameters.AddWithValue("@Satisfied", satisfied);
-                                update_Satisfied_Field.ExecuteNonQuery();
-                            }
-                        }
-                        else
-                        {
-                            //We create a new "Attractions" table because the last one goes on more than one hour.
-                            //Before we get the two foreign key to fill the new table 
-                            SqlCommand get_IDPeople_IDProjects = new SqlCommand("SELECT ID_People, ID_Projects FROM People, Projects WHERE ([personID] = @personID AND [projectID] = @projectID)", cnn);
-                            get_IDPeople_IDProjects.Parameters.AddWithValue("@personID", personID);
-                            get_IDPeople_IDProjects.Parameters.AddWithValue("@projectID", projectID);
-                            SqlDataReader read_Foreign_Key = find_Attractions_table.ExecuteReader();
-                            while (read_Foreign_Key.Read())
-                            {
-                                id_people = (int)read_Foreign_Key[0];
-                                id_project = (int)read_Foreign_Key[1];
-                            }
-                            SqlCommand update_Satisfied_Field = new SqlCommand("INSERT INTO dbo.Attractions (DateUTC, Satisfied, Attention_time, ID_People, ID_Projects)" +
-                                                                               "VALUES (@dateUTC, @satisfied, @ancestry, @age)"
-                    }
-                    }
-
-
-                }
-                catch (Exception e)
+                People person = new People
                 {
-                    Console.WriteLine(e);
-                }
-                cnn.Close();
+                    person_id = (int)o.GetValue("PersonID"),
+                    gender = (string)o.GetValue("Gender"),
+                    age = (int)o.GetValue("Age"),
+                    ancestry = (string)o.GetValue("Ancestry"),
+                    attractions = myList
+                };
+                await collection.InsertOneAsync(person);
             }
+
+
+            ////Exemple of insertion into the EyeFaceDB database
+            //Attraction rudja_Attraction = new Attraction
+            //{
+            //    project_name = (string)o.GetValue("ProjectName"),
+            //    dateUTC = DateTime.UtcNow,
+            //    attention_time = (double)o.GetValue("Attention_time"),
+            //    satisfied = satisfaction
+            //};
+
+            //List<Attraction> myList = new List<Attraction>();
+            //myList.Add(rudja_Attraction);
+
+            //People rudja = new People
+            //{
+            //    person_id = (int)o.GetValue("PersonID"),
+            //    gender = (string)o.GetValue("Gender"),
+            //    age = (int)o.GetValue("Age"),
+            //    ancestry = (string)o.GetValue("Ancestry"),
+            //    attractions = myList
+            //};
+            //collection.InsertOneAsync(rudja);   //With async method, no need to wait that Mongo finalize the operation
+            //Console.WriteLine("The people have been inserted in the database");
 
         }
 
@@ -362,7 +341,7 @@ namespace EyeFaceApplication
         /// <summary>
         /// This is a C# version of EyeFace Standard API example on how to process a videostream.
         /// </summary>
-        
+
         /*public static void efEyeFaceStandardExample()
         {
             // then instantiate EfCsSDK object
@@ -464,6 +443,7 @@ namespace EyeFaceApplication
                         person.WriteValue(trackInfoArray.track_info[i].face_attributes.age.value);
 
                         person.WritePropertyName("Emotion");
+                        //Better to get the int value from emotion
                         person.WriteValue(trackInfoArray.track_info[i].face_attributes.emotion.ToString());
 
                         person.WritePropertyName("Ancestry");
