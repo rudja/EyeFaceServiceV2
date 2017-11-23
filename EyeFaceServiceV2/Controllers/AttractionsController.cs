@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -131,4 +131,4 @@ namespace EyeFaceServiceV2.Controllers
             return db.Attraction.Count(e => e.Id == id) > 0;
         }
     }
-}
+}*/

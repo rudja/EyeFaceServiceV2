@@ -56,31 +56,37 @@ using MongoDB.Driver;
 using MongoDB.Driver.Core;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EyeFaceApplication
 {
     class Program
     {
-        private const string EYEFACE_DIR = "..\\..\\eyefacesdk";
+        //private const string EYEFACE_DIR = "..\\..\\eyefacesdk";
         //private const string EYEFACE_DIR = "C:\\Users\\Innovation\\Documents\\GitHub\\EyeFaceApplication\\eyefacesdk";
+        private const string EYEFACE_DIR = "C:\\Users\\Innovation\\Documents\\GitHub\\EyeFaceServiceV2\\EyeFaceApplication\\eyefacesdk";
         private const string CONFIG_INI = "config.ini";
 
         //My constant
-        private const double limitHour = -1;
+        private const double limitTime = -5;
+        private const string ProjectName = "3D Modeler";
+        private const int adjust_variable_for_attentionTime = 78;
 
         public static int Main(string[] args)
         {
             try
             {
-                //efEyeFaceStandardExample();
-
-
-                int personID = 1;
+                //Automatic facial recognition
+                efEyeFaceStandardExample();
+              
+                //Manual facial recognition. 
+                /*int personID = 1;
                 //int projectID = 3;
                 int attention_time = 0;
                 int milliseconds = 1000;
                 string emotion = "Not Smiling";
            
+                //We will here get all information about the person's face and store it into a JObject
                 while (!(Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape))
                 {
                     JTokenWriter person = new JTokenWriter();
@@ -98,14 +104,12 @@ namespace EyeFaceApplication
                     person.WriteValue(23);
 
                     person.WritePropertyName("Emotion");
-                    //person.WriteValue("Smiling");
-                    //person.WriteValue("Not Smiling");
                     person.WriteValue(emotion);
 
                     person.WritePropertyName("Ancestry");
                     person.WriteValue("Africain");
 
-                    person.WritePropertyName("Attention_Time");
+                    person.WritePropertyName("AttentionTime");
                     person.WriteValue(attention_time);
 
                     person.WritePropertyName("ProjectName");
@@ -116,6 +120,7 @@ namespace EyeFaceApplication
                     JObject o = (JObject)person.Token;
                     Console.WriteLine(o.ToString());
 
+                    //Now we can store the JObject into our database
                     saveDataIntoEyeFaceDB(o);
 
                     attention_time += 1;
@@ -129,15 +134,16 @@ namespace EyeFaceApplication
                     {
                         //Nothing
                     }
-                    //personID += 1;
+                    personID += 1;
 
                     Thread.Sleep(milliseconds);
-                }
+                }*/
                 
             }
             catch (Exception e)
             {
                 System.Console.WriteLine("ERROR: efEyeFaceStandardExample() failed: " + e.ToString());
+                Console.Read();
                 return -1;
             }
             return 0;
@@ -204,9 +210,9 @@ namespace EyeFaceApplication
             bitmap.Save(imageSavePath);
         }
 
-        private static int checkSatisfaction(string emotion)
+        private static int checkSatisfaction(EfEmotionClass emotion)
         {
-            if (emotion == "Smiling")
+            if (emotion == EfEmotionClass.EF_EMOTION_SMILING)
             {
                 //Return 1 if the person is smiling
                 return 1;
@@ -217,8 +223,7 @@ namespace EyeFaceApplication
             }
         }
 
-
-        private static async void saveDataIntoEyeFaceDB(JObject o)
+        private static void saveDataIntoEyeFaceDB(People new_person)
         {
             //Connection to our database
             var connectionString = "mongodb://localhost";
@@ -229,21 +234,24 @@ namespace EyeFaceApplication
             int satisfaction = 0;
             ////Check of satisfied value
             //ENHANCE! We will in the future directly get the int value from emotion. 
-            satisfaction = checkSatisfaction((string)o.GetValue("Emotion"));
+            //satisfaction = checkSatisfaction((string)o.GetValue("Emotion"));
 
-            var filter = Builders<People>.Filter.Eq("person_id", (int)o.GetValue("PersonID"));
-            var result = await collection.Find(filter).ToListAsync();
+            //bool myVar = await UpdatePerson(13, 23);
+            //Console.WriteLine(myVar);
+
+            var filter = Builders<People>.Filter.Eq("person_id", new_person.person_id);
+            var result = collection.Find(filter).ToList();
 
             if (result.Count() != 0)
             {
                 //This person already exist in the database
-                //Now we will check if their was already an attraction with THIS project in THE hour
+                //Now we will check if their was already an attraction with THIS project in the limitTime
                 var builder = Builders<People>.Filter;
-                filter = builder.Eq("person_id", (int)o.GetValue("PersonID"))
-                         & builder.Eq("attractions.project_name", (string)o.GetValue("ProjectName"))
-                         & builder.Gt("attractions.dateUTC", DateTime.UtcNow.AddHours(limitHour));
-                         //& builder.Eq("attractions.satisfied", 0);
-                result = await collection.Find(filter).ToListAsync();
+                filter = builder.Eq("person_id", new_person.person_id)
+                         & builder.Eq("attractions.project_name", new_person.attractions[0].project_name)
+                         & builder.Gt("attractions.dateUTC", DateTime.UtcNow.AddMinutes(limitTime));
+                //& builder.Eq("attractions.satisfied", 0);
+                result = collection.Find(filter).ToList();
                 //Console.Write("Number of attraction on same project in this our : ");
                 //Console.WriteLine(result.Count());
                 if (result.Count() != 0)
@@ -252,22 +260,23 @@ namespace EyeFaceApplication
                     //We will update it with the new value of satisfied variable if he is satisfied now.
                     Console.WriteLine("Let's see if you are satisfied now!");
                     //Console.WriteLine(satisfaction);
-                    if (satisfaction == 1)
+                    if (new_person.attractions[0].satisfied == 1)
                     {
                         //I decided to only write 1 in the database. 
                         //If the person was not smiling during the interaction, the final user will only see 0 in database. 
                         Console.WriteLine("You are now smiling!");
-                        var update = Builders<People>.Update.Set("attractions.$.satisfied", satisfaction)
-                                                            .Set("attractions.$.attention_time", (double)o.GetValue("Attention_Time"));
-                        var result1 = await collection.UpdateOneAsync(filter, update);
-                    } else
+                        var update = Builders<People>.Update.Set("attractions.$.satisfied", new_person.attractions[0].satisfied)
+                                                            .Set("attractions.$.attention_time", new_person.attractions[0].attention_time);
+                        var result1 = collection.UpdateOne(filter, update);
+                    }
+                    else
                     {
-                        //We do nothing and let this field to 0 or 1 during one hour. 
+                        //We do nothing and let this field to 0 or 1 during the limitTime. 
                         //After this hour, we will not be able to change it anymore, so we will have the real
                         //result about the fact that this person smile or not during his experience
                         Console.WriteLine("You are NOT smiling!");
-                        var update = Builders<People>.Update.Set("attractions.$.attention_time", (double)o.GetValue("Attention_Time"));
-                        var result1 = await collection.UpdateOneAsync(filter, update);
+                        var update = Builders<People>.Update.Set("attractions.$.attention_time", new_person.attractions[0].attention_time);
+                        var result1 = collection.UpdateOne(filter, update);
                     }
                 }
                 else
@@ -275,40 +284,40 @@ namespace EyeFaceApplication
                     //We will create a new attraction row because this person is coming back
                     //to this project. In my point of view this is a new interaction.
                     Console.WriteLine("You were not on this project recently");
-                    Attraction new_Attraction = new Attraction
+                    Attraction new_Attraction = new Attraction()
                     {
-                        project_name = (string)o.GetValue("ProjectName"),
+                        project_name = new_person.attractions[0].project_name,
                         dateUTC = DateTime.UtcNow,
-                        attention_time = (double)o.GetValue("Attention_Time"),
-                        satisfied = satisfaction
+                        attention_time = new_person.attractions[0].attention_time,
+                        satisfied = new_person.attractions[0].satisfied
                     };
-                    filter = builder.Eq("person_id", (int)o.GetValue("PersonID"));
+                    filter = builder.Eq("person_id", new_person.person_id);
                     var update = Builders<People>.Update.Push("attractions", new_Attraction);
-                    await collection.FindOneAndUpdateAsync(filter, update);
+                    collection.FindOneAndUpdate(filter, update);
                 }
             }
             else
             {
                 //This person does not exist yet. We will create a table for him.
-                Attraction person_Attraction = new Attraction
+                Attraction person_Attraction = new Attraction()
                 {
-                    project_name = (string)o.GetValue("ProjectName"),
+                    project_name = new_person.attractions[0].project_name,
                     dateUTC = DateTime.UtcNow,
-                    attention_time = (double)o.GetValue("Attention_Time"),
-                    satisfied = satisfaction
+                    attention_time = new_person.attractions[0].attention_time,
+                    satisfied = new_person.attractions[0].satisfied
                 };
                 List<Attraction> myList = new List<Attraction>();
                 myList.Add(person_Attraction);
 
                 People person = new People
                 {
-                    person_id = (int)o.GetValue("PersonID"),
-                    gender = (string)o.GetValue("Gender"),
-                    age = (int)o.GetValue("Age"),
-                    ancestry = (string)o.GetValue("Ancestry"),
+                    person_id = new_person.person_id,
+                    gender = new_person.gender,
+                    age = new_person.age,
+                    ancestry = new_person.ancestry,
                     attractions = myList
                 };
-                await collection.InsertOneAsync(person);
+                collection.InsertOne(person);
             }
 
 
@@ -342,11 +351,23 @@ namespace EyeFaceApplication
         /// This is a C# version of EyeFace Standard API example on how to process a videostream.
         /// </summary>
 
-        /*public static void efEyeFaceStandardExample()
+        public static void efEyeFaceStandardExample()
         {
             // then instantiate EfCsSDK object
             EfCsSDK efCsSDK = new EfCsSDK(EYEFACE_DIR);
             System.Console.WriteLine("EyeFace C# interface initialized.");
+
+            /*
+            // Sentinel LDK license check                            
+            long key = efCsSDK.efHaspGetCurrentLoginKeyId();
+ 
+            EfHaspTime expDate;
+            if (!efCsSDK.efHaspGetExpirationDate(key, out expDate)) {
+                System.Console.Error.WriteLine("ERROR: HASP license verification failed.");
+                return;
+            }
+            System.Console.WriteLine("HASP key = " + key.ToString() + " license expiration date [YYYY/MM/DD]: " + expDate.year + "/" + expDate.month.ToString() + "/" + expDate.day.ToString());
+            */
 
             // init EyeFace                                               
             System.Console.Write("EyeFace init ... ");
@@ -449,18 +470,44 @@ namespace EyeFaceApplication
                         person.WritePropertyName("Ancestry");
                         person.WriteValue(trackInfoArray.track_info[i].face_attributes.ancestry.ToString());
 
-                        person.WritePropertyName("Attention_time");
+                        person.WritePropertyName("AttentionTime");
                         person.WriteValue(trackInfoArray.track_info[i].attention_time);
+
+                        person.WritePropertyName("ProjectName");
+                        person.WriteValue("3D Modeler");
 
                         person.WriteEndObject();
 
                         JObject o = (JObject)person.Token;
                         Console.WriteLine(o.ToString());
 
+
+                        //Here we fill a person object to send it to the save funtion into database
+                        Attraction person_Attraction = new Attraction()
+                        {
+                            project_name = ProjectName,
+                            dateUTC = DateTime.UtcNow,
+                            attention_time = (int)trackInfoArray.track_info[i].attention_time,
+                            satisfied = checkSatisfaction(trackInfoArray.track_info[i].face_attributes.emotion.value)
+                        };
+                        List<Attraction> myList = new List<Attraction>();
+                        myList.Add(person_Attraction);
+
+                        People new_person = new People
+                        {
+                            person_id = (int)trackInfoArray.track_info[i].person_id,
+                            gender = trackInfoArray.track_info[i].face_attributes.gender.ToString(),
+                            age = (int)trackInfoArray.track_info[i].face_attributes.age.value,
+                            ancestry = trackInfoArray.track_info[i].face_attributes.ancestry.ToString(),
+                            attractions = myList
+                        };
+                        Console.WriteLine(new_person.ToString());
+
                         // free the image
                         efCsSDK.erImageFree(ref image);
 
-                        saveDataIntoEyeFaceDB(o);
+                        saveDataIntoEyeFaceDB(new_person);
+                        Thread.Sleep(adjust_variable_for_attentionTime);
                     }
                     else
                     {
@@ -474,6 +521,6 @@ namespace EyeFaceApplication
 
             System.Console.WriteLine("[Press ENTER to exit]");
             System.Console.ReadLine();
-        }*/
+        }
     }
 }

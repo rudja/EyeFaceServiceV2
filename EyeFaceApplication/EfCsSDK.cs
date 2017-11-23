@@ -1,4 +1,4 @@
-﻿////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                    //
 //    C# interface to EyeFace SDK                                                     //
 // ---------------------------------------------------------------------------------- //
@@ -53,21 +53,20 @@ namespace Eyedea.EyeFace
     /// <summary>
     /// Class containing all EyeFace constant values.
     /// </summary>
-    public static class EfConstants
-    {
+    public static class EfConstants {
         // Masks for efRecognizeFaceAttributes() parameter "request_flag"
-        public const UInt32 EF_FACEATTRIBUTES_AGE = 0x01;
-        public const UInt32 EF_FACEATTRIBUTES_GENDER = 0x02;
-        public const UInt32 EF_FACEATTRIBUTES_EMOTION = 0x04;
-        public const UInt32 EF_FACEATTRIBUTES_ANCESTRY = 0x08;
+        public const UInt32 EF_FACEATTRIBUTES_AGE           = 0x01;
+        public const UInt32 EF_FACEATTRIBUTES_GENDER        = 0x02;
+        public const UInt32 EF_FACEATTRIBUTES_EMOTION       = 0x04;
+        public const UInt32 EF_FACEATTRIBUTES_ANCESTRY      = 0x08;
         public const UInt32 EF_FACEATTRIBUTES_SMARTTRACKING = 0x10;
-        public const UInt32 EF_FACEATTRIBUTES_ALL = 0xFFFFFFFF;
+        public const UInt32 EF_FACEATTRIBUTES_ALL           = 0xFFFFFFFF;
 
         /// <summary>Maximal number of elements contained in the <see cref="Ef2dPoints"/> structure.</summary>
-        public const int EF2DPOINTS_MAX_SIZE = 32;
+        public const int    EF2DPOINTS_MAX_SIZE             = 32;
 
-        public const Int32 EF_FALSE = 0;
-        public const Int32 EF_TRUE = 1;
+        public const Int32  EF_FALSE = 0;
+        public const Int32  EF_TRUE  = 1;
     }
 
     /// <summary>EyeFace SDK boolean representation using integer value.</summary>
@@ -77,39 +76,30 @@ namespace Eyedea.EyeFace
         /// <summary>Integer value representing boolean value: 1 - true, 0 - false.</summary>
         private Int32 value;
 
-        public static implicit operator bool(EfBool efBool)
-        {
-            if (efBool.value == EfConstants.EF_TRUE)
-            {
+        public static implicit operator bool(EfBool efBool) {
+            if (efBool.value == EfConstants.EF_TRUE) {
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
         }
 
-        public static implicit operator EfBool(bool csBool)
-        {
+        public static implicit operator EfBool(bool csBool) {
             EfBool efBool = new EfBool();
             efBool.value = EfConstants.EF_FALSE;
-            if (csBool)
-            {
+            if (csBool) {
                 efBool.value = EfConstants.EF_TRUE;
             }
 
             return efBool;
         }
 
-        public static EfBool[] boolArrayToEfBoolArray(bool[] csBoolArray)
-        {
-            if (csBoolArray == null)
-            {
+        public static EfBool[] boolArrayToEfBoolArray(bool[] csBoolArray) {
+            if (csBoolArray == null) {
                 return null;
             }
             EfBool[] efBoolArray = new EfBool[csBoolArray.Length];
-            for (int i = 0; i < csBoolArray.Length; i++)
-            {
+            for (int i = 0; i < csBoolArray.Length; i++) {
                 efBoolArray[i] = csBoolArray[i];
             }
 
@@ -119,8 +109,7 @@ namespace Eyedea.EyeFace
 
     /// <summary>Set of 2D points structure.</summary>
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
-    public struct Ef2dPoints
-    {
+    public struct Ef2dPoints {
         /// <summary>Number of points in the set.</summary>
         public int length;
         /// <summary>Row coordinates of points.</summary
@@ -133,25 +122,18 @@ namespace Eyedea.EyeFace
         /// Point coordinates are converted form double to float.
         /// </summary>
         /// <returns>List containing the points.</returns>
-        public List<PointF> Points
-        {
-            get
-            {
+        public List<PointF> Points {
+            get {
                 if (length < 0 ||
-                    length > EfConstants.EF2DPOINTS_MAX_SIZE)
-                {
+                    length > EfConstants.EF2DPOINTS_MAX_SIZE) {
                     throw new EfException("Invalid field length in the Ef2dPoints structure.");
                 }
 
                 List<PointF> points = new List<PointF>();
-                unsafe
-                {
-                    for (int i = 0; i < length; i++)
-                    {
-                        fixed (double* colsArr = cols)
-                        {
-                            fixed (double* rowsArr = rows)
-                            {
+                unsafe {
+                    for (int i = 0; i < length; i++) {
+                        fixed (double* colsArr = cols) {
+                            fixed (double* rowsArr = rows) {
                                 points.Add(new PointF((float)colsArr[i], (float)rowsArr[i]));
                             }
                         }
@@ -165,18 +147,13 @@ namespace Eyedea.EyeFace
         /// <summary>
         /// Rows (Y coordinates) property.
         /// </summary>
-        public double[] Rows
-        {
-            get
-            {
+        public double[] Rows {
+            get {
                 int length = Math.Min(this.length, EfConstants.EF2DPOINTS_MAX_SIZE);
                 double[] rows = new double[length];
-                unsafe
-                {
-                    fixed (double* rowsPtr = this.rows)
-                    {
-                        for (int i = 0; i < length; i++)
-                        {
+                unsafe {
+                    fixed (double* rowsPtr = this.rows) {
+                        for (int i = 0; i < length; i++) {
                             rows[i] = rowsPtr[i];
                         }
                     }
@@ -189,18 +166,13 @@ namespace Eyedea.EyeFace
         /// <summary>
         /// Cols (X coordinates) property.
         /// </summary>
-        public double[] Cols
-        {
-            get
-            {
+        public double[] Cols {
+            get {
                 int length = Math.Min(this.length, EfConstants.EF2DPOINTS_MAX_SIZE);
                 double[] cols = new double[length];
-                unsafe
-                {
-                    fixed (double* colsPtr = this.cols)
-                    {
-                        for (int i = 0; i < length; i++)
-                        {
+                unsafe {
+                    fixed (double* colsPtr = this.cols) {
+                        for (int i = 0; i < length; i++) {
                             cols[i] = colsPtr[i];
                         }
                     }
@@ -238,14 +210,13 @@ namespace Eyedea.EyeFace
         /// </summary>
         /// <param name="width">Width of the bounding box to create.</param>
         /// <param name="height">Height of the bounding box to create.</param>
-        public EfBoundingBox(uint width, uint height)
-        {
-            top_left_col = 0;
-            top_left_row = 0;
+        public EfBoundingBox(uint width, uint height) {
+            top_left_col  = 0;
+            top_left_row  = 0;
             top_right_col = (int)(width - 1);
             top_right_row = 0;
-            bot_left_col = 0;
-            bot_left_row = (int)(height - 1);
+            bot_left_col  = 0;
+            bot_left_row  = (int)(height - 1);
             bot_right_col = (int)(width - 1);
             bot_right_row = (int)(height - 1);
         }
@@ -258,14 +229,13 @@ namespace Eyedea.EyeFace
         /// <param name="y">Y coordinate of the bonding box origin.</param>
         /// <param name="width">Width of the bounding box to create.</param>
         /// <param name="height">Height of the bounding box to create.</param>
-        public EfBoundingBox(int x, int y, uint width, uint height)
-        {
-            top_left_col = x;
-            top_left_row = y;
+        public EfBoundingBox(int x, int y, uint width, uint height) {
+            top_left_col  = x;
+            top_left_row  = y;
             top_right_col = (int)(top_left_col + width - 1);
             top_right_row = y;
-            bot_left_col = x;
-            bot_left_row = (int)(top_left_row + height - 1);
+            bot_left_col  = x;
+            bot_left_row  = (int)(top_left_row + height - 1);
             bot_right_col = (int)(bot_left_col + width - 1);
             bot_right_row = (int)(top_right_row + height - 1);
         }
@@ -277,14 +247,13 @@ namespace Eyedea.EyeFace
         /// </summary>
         /// <param name="topLeft">Top left point of the bounding box.</param>
         /// <param name="botRight">Bottom left point of the bounding box.</param>
-        public EfBoundingBox(Point topLeft, Point botRight)
-        {
-            top_left_col = topLeft.X;
-            top_left_row = topLeft.Y;
+        public EfBoundingBox(Point topLeft, Point botRight) {
+            top_left_col  = topLeft.X;
+            top_left_row  = topLeft.Y;
             top_right_col = botRight.X;
             top_right_row = topLeft.Y;
-            bot_left_col = topLeft.X;
-            bot_left_row = botRight.Y;
+            bot_left_col  = topLeft.X;
+            bot_left_row  = botRight.Y;
             bot_right_col = botRight.X;
             bot_right_row = botRight.Y;
         }
@@ -300,14 +269,13 @@ namespace Eyedea.EyeFace
         /// <param name="topRight">Top right point of the bounding box.</param>
         /// <param name="botRight">Bottom left right of the bounding box.</param>
         /// <param name="botLeft">Bottom left point of the bounding box.</param>
-        public EfBoundingBox(Point topLeft, Point topRight, Point botRight, Point botLeft)
-        {
-            top_left_col = topLeft.X;
-            top_left_row = topLeft.Y;
+        public EfBoundingBox(Point topLeft, Point topRight, Point botRight, Point botLeft) {
+            top_left_col  = topLeft.X;
+            top_left_row  = topLeft.Y;
             top_right_col = topRight.X;
             top_right_row = topRight.Y;
-            bot_left_col = botLeft.X;
-            bot_left_row = botLeft.Y;
+            bot_left_col  = botLeft.X;
+            bot_left_row  = botLeft.Y;
             bot_right_col = botRight.X;
             bot_right_row = botRight.Y;
         }
@@ -317,26 +285,23 @@ namespace Eyedea.EyeFace
         /// in the following order: top left, top right, bottom right and bottom left point. 
         /// </summary>
         /// <returns>List containing the points.</returns>
-        public Point[] Points
-        {
-            get
-            {
+        public Point[] Points {
+            get {
                 Point[] points = new Point[4];
-                points[0] = new Point(top_left_col, top_left_row);
+                points[0] = new Point(top_left_col , top_left_row );
                 points[1] = new Point(top_right_col, top_right_row);
                 points[2] = new Point(bot_right_col, bot_right_row);
-                points[3] = new Point(bot_left_col, bot_left_row);
+                points[3] = new Point(bot_left_col , bot_left_row );
 
                 return points;
             }
         }
 
-        public override string ToString()
-        {
-            return "[" + top_left_col + "," + top_left_row + "]," +
-                   "[" + top_right_col + "," + top_right_row + "]," +
-                   "[" + bot_right_col + "," + bot_right_row + "]," +
-                   "[" + bot_left_col + "," + bot_left_row + "]";
+        public override string ToString() {
+            return "[" + top_left_col  + "," + top_left_row  + "]," + 
+                   "[" + top_right_col + "," + top_right_row + "]," + 
+                   "[" + bot_right_col + "," + bot_right_row + "]," + 
+                   "[" + bot_left_col  + "," + bot_left_row  + "]";
         }
     };
 
@@ -351,34 +316,27 @@ namespace Eyedea.EyeFace
         /// <summary>Yaw angle</summary>
         public double yaw;
 
-        public double this[int index]
-        {
-            get
-            {
-                switch (index)
-                {
-                    case 0: { return roll; }
-                    case 1: { return pitch; }
-                    case 2: { return yaw; }
+        public double this[int index] {
+            get {
+                switch (index) {
+                    case  0: { return  roll; }
+                    case  1: { return pitch; }
+                    case  2: { return   yaw; }
                     default: { throw new IndexOutOfRangeException(); }
                 }
             }
-            set
-            {
-                switch (index)
-                {
-                    case 0: { roll = value; return; }
-                    case 1: { pitch = value; return; }
-                    case 2: { yaw = value; return; }
+            set {
+                switch (index) {
+                    case  0: { roll  = value; return; }
+                    case  1: { pitch = value; return; }
+                    case  2: { yaw   = value; return; }
                     default: { throw new IndexOutOfRangeException(); }
                 }
             }
         }
 
-        public int Length
-        {
-            get
-            {
+        public int Length {
+            get {
                 return 3;
             }
         }
@@ -393,32 +351,25 @@ namespace Eyedea.EyeFace
         /// <summary>Y coordinate</summary>
         public double y;
 
-        public double this[int index]
-        {
-            get
-            {
-                switch (index)
-                {
-                    case 0: { return x; }
-                    case 1: { return y; }
+        public double this[int index] {
+            get {
+                switch (index) {
+                    case  0: { return x; }
+                    case  1: { return y; }
                     default: { throw new IndexOutOfRangeException(); }
                 }
             }
-            set
-            {
-                switch (index)
-                {
-                    case 0: { x = value; return; }
-                    case 1: { y = value; return; }
+            set {
+                switch (index) {
+                    case  0: { x = value; return; }
+                    case  1: { y = value; return; }
                     default: { throw new IndexOutOfRangeException(); }
                 }
             }
         }
 
-        public int Length
-        {
-            get
-            {
+        public int Length {
+            get {
                 return 2;
             }
         }
@@ -455,8 +406,7 @@ namespace Eyedea.EyeFace
         /// <summary>Age classifier score function response (for data analysts / statisticians).</summary>
         public double response;
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return "Age\t  = " + value + " years";
         }
     };
@@ -465,11 +415,11 @@ namespace Eyedea.EyeFace
     public enum EfGenderClass
     {
         /// <summary>Male value.</summary>
-        EF_GENDER_MALE = -1,
+        EF_GENDER_MALE    = -1,
         /// <summary>Non-gender value.</summary>
-        EF_GENDER_UNKNOWN = 0,
+        EF_GENDER_UNKNOWN =  0,
         /// <summary>Female value.</summary>
-        EF_GENDER_FEMALE = 1
+        EF_GENDER_FEMALE  =  1
     };
 
     /// <summary>Gender recognition result type.</summary>
@@ -483,28 +433,15 @@ namespace Eyedea.EyeFace
         /// <summary>Gender classifier score function response (for data analysts / statisticians).</summary>
         public double response;
 
-        //public override string ToString() {
-        //    String res = "Gender\t  = ";
-        //    if (value == EfGenderClass.EF_GENDER_FEMALE) {
-        //        return res + "female";
-        //    }
-        //    if (value == EfGenderClass.EF_GENDER_MALE) {
-        //        return res + "male";
-        //    }
-        //    return res + "unknown";
-        //}
-
-        public override string ToString()
-        {
-            if (value == EfGenderClass.EF_GENDER_FEMALE)
-            {
-                return "female";
+        public override string ToString() {
+            String res = "Gender\t  = ";
+            if (value == EfGenderClass.EF_GENDER_FEMALE) {
+                return res + "female";
             }
-            if (value == EfGenderClass.EF_GENDER_MALE)
-            {
-                return "male";
+            if (value == EfGenderClass.EF_GENDER_MALE) {
+                return res + "male";
             }
-            return "unknown";
+            return res + "unknown";
         }
     };
 
@@ -514,9 +451,9 @@ namespace Eyedea.EyeFace
         /// <summary></summary>
         EF_EMOTION_NOTSMILING = -1,
         /// <summary></summary>
-        EF_EMOTION_UNKNOWN = 0,
+        EF_EMOTION_UNKNOWN    =  0,
         /// <summary></summary>
-        EF_EMOTION_SMILING = 1
+        EF_EMOTION_SMILING    =  1
     };
 
     /// <summary>Emotion recognition result type.</summary>
@@ -530,28 +467,15 @@ namespace Eyedea.EyeFace
         /// <summary>Emotion classifier score function response (for data analysts / statisticians).</summary>
         public double response;
 
-        //public override string ToString() {
-        //    String res = "Emotion\t  = ";
-        //    if (value == EfEmotionClass.EF_EMOTION_NOTSMILING) {
-        //        return res + "not smiling";
-        //    }
-        //    if (value == EfEmotionClass.EF_EMOTION_SMILING) {
-        //        return res + "smiling";
-        //    }
-        //    return res + "unknown";
-        //}
-
-        public override string ToString()
-        {
-            if (value == EfEmotionClass.EF_EMOTION_NOTSMILING)
-            {
-                return "not smiling";
+        public override string ToString() {
+            String res = "Emotion\t  = ";
+            if (value == EfEmotionClass.EF_EMOTION_NOTSMILING) {
+                return res + "not smiling";
             }
-            if (value == EfEmotionClass.EF_EMOTION_SMILING)
-            {
-                return "smiling";
+            if (value == EfEmotionClass.EF_EMOTION_SMILING) {
+                return res + "smiling";
             }
-            return "unknown";
+            return res + "unknown";
         }
     };
 
@@ -579,35 +503,18 @@ namespace Eyedea.EyeFace
         /// <summary>Estimate of probability that the person is of the given ancestry. (for data analysts / statisticians).</summary>
         public double response;
 
-        //public override string ToString() {
-        //    String res = "Ancestry  = ";
-        //    if (value == EfAncestryClass.EF_ANCESTRY_AFRICAN) {
-        //        return res + "african";
-        //    }
-        //    if (value == EfAncestryClass.EF_ANCESTRY_ASIAN) {
-        //        return res + "asian";
-        //    }
-        //    if (value == EfAncestryClass.EF_ANCESTRY_CAUCASIAN) {
-        //        return res + "caucasian";
-        //    }
-        //    return res + "unknown";
-        //}
-
-        public override string ToString()
-        {
-            if (value == EfAncestryClass.EF_ANCESTRY_AFRICAN)
-            {
-                return "african";
+        public override string ToString() {
+            String res = "Ancestry  = ";
+            if (value == EfAncestryClass.EF_ANCESTRY_AFRICAN) {
+                return res + "african";
             }
-            if (value == EfAncestryClass.EF_ANCESTRY_ASIAN)
-            {
-                return "asian";
+            if (value == EfAncestryClass.EF_ANCESTRY_ASIAN) {
+                return res + "asian";
             }
-            if (value == EfAncestryClass.EF_ANCESTRY_CAUCASIAN)
-            {
-                return "caucasian";
+            if (value == EfAncestryClass.EF_ANCESTRY_CAUCASIAN) {
+                return res + "caucasian";
             }
-            return "unknown";
+            return res + "unknown";
         }
     };
 
@@ -628,8 +535,7 @@ namespace Eyedea.EyeFace
         /// Returns recognized age in years.
         /// </summary>
         /// <returns>Recognized age in years.</returns>
-        public int getAge()
-        {
+        public int getAge() {
             return (int)age.value;
         }
 
@@ -637,8 +543,7 @@ namespace Eyedea.EyeFace
         /// Returns recognized gender.
         /// </summary>
         /// <returns>Recognized gender.</returns>
-        public EfGenderClass getGender()
-        {
+        public EfGenderClass getGender() {
             return gender.value;
         }
 
@@ -646,8 +551,7 @@ namespace Eyedea.EyeFace
         /// Returns recognized emotion.
         /// </summary>
         /// <returns>Recognized emotion.</returns>
-        public EfEmotionClass getEmotion()
-        {
+        public EfEmotionClass getEmotion() {
             return emotion.value;
         }
 
@@ -655,17 +559,15 @@ namespace Eyedea.EyeFace
         /// Returns recognized ancestry.
         /// </summary>
         /// <returns>Recognized ancestry.</returns>
-        public EfAncestryClass getAncestry()
-        {
+        public EfAncestryClass getAncestry() {
             return ancestry.value;
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             StringBuilder sb = new StringBuilder();
-            sb.Append("\t" + age.ToString() + "\n");
-            sb.Append("\t" + gender.ToString() + "\n");
-            sb.Append("\t" + emotion.ToString() + "\n");
+            sb.Append("\t" + age.ToString()      + "\n");
+            sb.Append("\t" + gender.ToString()   + "\n");
+            sb.Append("\t" + emotion.ToString()  + "\n");
             sb.Append("\t" + ancestry.ToString());
 
             return sb.ToString();
@@ -676,7 +578,7 @@ namespace Eyedea.EyeFace
     public enum EfTrackStatus
     {
         /// <summary>Live track</summary>
-        EF_TRACKSTATUS_LIVE = 0,
+        EF_TRACKSTATUS_LIVE     = 0,
         /// <summary>Finished track</summary>
         EF_TRACKSTATUS_FINISHED = 1
     };
@@ -719,16 +621,12 @@ namespace Eyedea.EyeFace
         /// outputted by efRunFaceDetector, so that EfTrackInfo can be matched with particular EfDetection.</summary>
         public int detection_index;
 
-        public override string ToString()
-        {
+        public override string ToString() {
             StringBuilder sb = new StringBuilder();
-            sb.Append("    Track " + (track_id).ToString() + "\n");
-            if (status == EfTrackStatus.EF_TRACKSTATUS_FINISHED)
-            {
+            sb.Append("    Track "        + (track_id).ToString() + "\n");
+            if (status == EfTrackStatus.EF_TRACKSTATUS_FINISHED) {
                 sb.Append("\tStatus\t  = finished\n");
-            }
-            else
-            {
+            } else {
                 sb.Append("\tStatus\t  = live\n");
             }
             sb.Append("\tPerson ID = " + person_id.ToString() + "\n");
@@ -758,11 +656,9 @@ namespace Eyedea.EyeFace
         /// </summary>
         /// <typeparam name="T">Type of the output array elements.</typeparam>
         /// <returns>Array containing elements copied from the C/C++ environment.</returns>
-        public T[] getArray<T>()
-        {
+        public T[] getArray<T>() {
             T[] array = new T[num_elements];
-            for (int i = 0; i < num_elements; i++)
-            {
+            for (int i = 0; i < num_elements; i++) {
                 IntPtr ptr = array_elements + i * Marshal.SizeOf(typeof(T));
                 array[i] = (T)Marshal.PtrToStructure(ptr, typeof(T));
             }
@@ -785,17 +681,14 @@ namespace Eyedea.EyeFace
         /// <para>WARNING: It is up to user to check the type safety during conversion from C/C++ to C#!</para>
         /// </summary>
         /// <param name="array">Array to convert to the <see cref="EfTrackInfoArray"/>.</param>
-        internal EfTrackInfoArray(EfUnmanagedArray array)
-        {
+        internal EfTrackInfoArray(EfUnmanagedArray array) {
             num_tracks = array.num_elements;
             track_info = array.getArray<EfTrackInfo>();
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < num_tracks; i++)
-            {
+            for (int i = 0; i < num_tracks; i++) {
                 sb.Append(track_info[i].ToString() + "\n");
             }
             return sb.ToString();
@@ -837,7 +730,7 @@ namespace Eyedea.EyeFace
         /// <summary>Position of detection in image.</summary>
         public EfPosition position;
         /// <summary>Roll, Pitch, Yaw - only Yaw and Roll now used.</summary>
-        public EfAngles angles;
+        public  EfAngles angles;
     };
 
     /// <summary>Detection result structure.</summary>
@@ -854,8 +747,7 @@ namespace Eyedea.EyeFace
         /// <para>WARNING: It is up to user to check the type safety during conversion from C/C++ to C#!</para>
         /// </summary>
         /// <param name="array">Array to convert to the <see cref="EfDetectionArray"/>.</param>
-        internal EfDetectionArray(EfUnmanagedArray array)
-        {
+        internal EfDetectionArray(EfUnmanagedArray array) {
             num_detections = array.num_elements;
             detections = array.getArray<EfDetection>();
         }
@@ -875,8 +767,7 @@ namespace Eyedea.EyeFace
         /// <para>WARNING: It is up to user to check the type safety during conversion from C/C++ to C#!</para>
         /// </summary>
         /// <param name="array">Array to convert to the <see cref="EfLandmarksArray"/>.</param>
-        internal EfLandmarksArray(EfUnmanagedArray array)
-        {
+        internal EfLandmarksArray(EfUnmanagedArray array) {
             num_detections = array.num_elements;
             landmarks = array.getArray<EfLandmarks>();
         }
@@ -896,8 +787,7 @@ namespace Eyedea.EyeFace
         /// <para>WARNING: It is up to user to check the type safety during conversion from C/C++ to C#!</para>
         /// </summary>
         /// <param name="array">Array to convert to the <see cref="EfFaceAttributes"/>.</param>
-        internal EfFaceAttributesArray(EfUnmanagedArray array)
-        {
+        internal EfFaceAttributesArray(EfUnmanagedArray array) {
             num_detections = array.num_elements;
             face_attributes = array.getArray<EfFaceAttributes>();
         }
@@ -920,18 +810,16 @@ namespace Eyedea.EyeFace
         /// <summary>Second</summary>
         public int second;
 
-        public EfHaspTime(int year, int month, int day, int hour, int minute, int second)
-        {
-            this.year = year;
-            this.month = month;
-            this.day = day;
-            this.hour = hour;
+        public EfHaspTime(int year, int month, int day, int hour, int minute, int second) {
+            this.year   = year;
+            this.month  = month;
+            this.day    = day;
+            this.hour   = hour;
             this.minute = minute;
             this.second = second;
         }
 
-        public DateTime toDateTime()
-        {
+        public DateTime toDateTime() {
             return new DateTime(year, month, day, hour, minute, second);
         }
     };
@@ -978,13 +866,11 @@ namespace Eyedea.EyeFace
     /// <summary>
     /// Class representing the EyeFace SDK module instance and containing all needed methods.
     /// </summary>
-    public class EfCsSDK
-    {
+    public class EfCsSDK {
         /// <summary>
         /// Native methods for explicit linking.
         /// </summary>
-        static class NativeMethods
-        {
+        static class NativeMethods {
             [DllImport("kernel32.dll")]
             public static extern IntPtr LoadLibrary(string dllToLoad);
 
@@ -1055,58 +941,58 @@ namespace Eyedea.EyeFace
         ////////
         IntPtr pDll = IntPtr.Zero;
 
-        IntPtr pEfInitEyeFace = IntPtr.Zero;
-        IntPtr pEfShutdownEyeFace = IntPtr.Zero;
-        IntPtr pEfResetEyeFace = IntPtr.Zero;
-        IntPtr pEfFreeEyeFace = IntPtr.Zero;
-        IntPtr pEfGetLibraryVersion = IntPtr.Zero;
-        IntPtr pEfMain = IntPtr.Zero;
-        IntPtr pEfGetTrackInfo = IntPtr.Zero;
-        IntPtr pEfFreeTrackInfo = IntPtr.Zero;
+        IntPtr pEfInitEyeFace                    = IntPtr.Zero;
+        IntPtr pEfShutdownEyeFace                = IntPtr.Zero;
+        IntPtr pEfResetEyeFace                   = IntPtr.Zero;
+        IntPtr pEfFreeEyeFace                    = IntPtr.Zero;
+        IntPtr pEfGetLibraryVersion              = IntPtr.Zero;
+        IntPtr pEfMain                           = IntPtr.Zero;
+        IntPtr pEfGetTrackInfo                   = IntPtr.Zero;
+        IntPtr pEfFreeTrackInfo                  = IntPtr.Zero;
         IntPtr pEfLogToServerGetConnectionStatus = IntPtr.Zero;
 
-        IntPtr pEfRunFaceDetector = IntPtr.Zero;
-        IntPtr pEfFreeDetections = IntPtr.Zero;
-        IntPtr pEfUpdateTracker = IntPtr.Zero;
-        IntPtr pEfRunFaceLandmark = IntPtr.Zero;
-        IntPtr pEfFreeLandmarks = IntPtr.Zero;
-        IntPtr pEfRecognizeFaceAttributes = IntPtr.Zero;
-        IntPtr pEfFreeAttributes = IntPtr.Zero;
-        IntPtr pEfLogToFileWriteTrackInfo = IntPtr.Zero;
-        IntPtr pEfLogToServerSendPing = IntPtr.Zero;
-        IntPtr pEfLogToServerSendTrackInfo = IntPtr.Zero;
+        IntPtr pEfRunFaceDetector                = IntPtr.Zero;
+        IntPtr pEfFreeDetections                 = IntPtr.Zero;
+        IntPtr pEfUpdateTracker                  = IntPtr.Zero;
+        IntPtr pEfRunFaceLandmark                = IntPtr.Zero;
+        IntPtr pEfFreeLandmarks                  = IntPtr.Zero;
+        IntPtr pEfRecognizeFaceAttributes        = IntPtr.Zero;
+        IntPtr pEfFreeAttributes                 = IntPtr.Zero;
+        IntPtr pEfLogToFileWriteTrackInfo        = IntPtr.Zero;
+        IntPtr pEfLogToServerSendPing            = IntPtr.Zero;
+        IntPtr pEfLogToServerSendTrackInfo       = IntPtr.Zero;
 
         // Sentinel LDK
-        IntPtr pEfHaspGetCurrentLoginKeyId = IntPtr.Zero;
-        IntPtr pEfHaspGetExpirationDate = IntPtr.Zero;
+        IntPtr pEfHaspGetCurrentLoginKeyId       = IntPtr.Zero;
+        IntPtr pEfHaspGetExpirationDate          = IntPtr.Zero;
 
         ///////////////
         // Define delegates of functions
         ///////////////
-        fcn_efInitEyeFace fcnEfInitEyeFace;
-        fcn_efShutdownEyeFace fcnEfShutdownEyeFace;
-        fcn_efResetEyeFace fcnEfResetEyeFace;
-        fcn_efFreeEyeFace fcnEfFreeEyeFace;
-        fcn_efGetLibraryVersion fcnEfGetLibraryVersion;
-        fcn_efMain fcnEfMain;
-        fcn_efGetTrackInfo fcnEfGetTrackInfo;
-        fcn_efFreeTrackInfo fcnEfFreeTrackInfo;
+        fcn_efInitEyeFace                    fcnEfInitEyeFace;
+        fcn_efShutdownEyeFace                fcnEfShutdownEyeFace;
+        fcn_efResetEyeFace                   fcnEfResetEyeFace;
+        fcn_efFreeEyeFace                    fcnEfFreeEyeFace;
+        fcn_efGetLibraryVersion              fcnEfGetLibraryVersion;
+        fcn_efMain                           fcnEfMain;
+        fcn_efGetTrackInfo                   fcnEfGetTrackInfo;
+        fcn_efFreeTrackInfo                  fcnEfFreeTrackInfo;
         fcn_efLogToServerGetConnectionStatus fcnEfLogToServerGetConnectionStatus;
 
-        fcn_efRunFaceDetector fcnEfRunFaceDetector;
-        fcn_efFreeDetections fcnEfFreeDetections;
-        fcn_efUpdateTracker fcnEfUpdateTracker;
-        fcn_efRunFaceLandmark fcnEfRunFaceLandmark;
-        fcn_efFreeLandmarks fcnEfFreeLandmarks;
-        fcn_efRecognizeFaceAttributes fcnEfRecognizeFaceAttributes;
-        fcn_efFreeAttributes fcnEfFreeAttributes;
-        fcn_efLogToFileWriteTrackInfo fcnEfLogToFileWriteTrackInfo;
-        fcn_efLogToServerSendPing fcnEfLogToServerSendPing;
-        fcn_efLogToServerSendTrackInfo fcnEfLogToServerSendTrackInfo;
+        fcn_efRunFaceDetector                fcnEfRunFaceDetector;
+        fcn_efFreeDetections                 fcnEfFreeDetections;
+        fcn_efUpdateTracker                  fcnEfUpdateTracker;
+        fcn_efRunFaceLandmark                fcnEfRunFaceLandmark;
+        fcn_efFreeLandmarks                  fcnEfFreeLandmarks;
+        fcn_efRecognizeFaceAttributes        fcnEfRecognizeFaceAttributes;
+        fcn_efFreeAttributes                 fcnEfFreeAttributes;
+        fcn_efLogToFileWriteTrackInfo        fcnEfLogToFileWriteTrackInfo;
+        fcn_efLogToServerSendPing            fcnEfLogToServerSendPing;
+        fcn_efLogToServerSendTrackInfo       fcnEfLogToServerSendTrackInfo;
 
         // Sentinel LDK
-        fcn_efHaspGetCurrentLoginKeyId fcnEfHaspGetCurrentLoginKeyId;
-        fcn_efHaspGetExpirationDate fcnEfHaspGetExpirationDate;
+        fcn_efHaspGetCurrentLoginKeyId       fcnEfHaspGetCurrentLoginKeyId;
+        fcn_efHaspGetExpirationDate          fcnEfHaspGetExpirationDate;
 
         /// <summary>
         /// Pointer to the module instance.
@@ -1118,11 +1004,9 @@ namespace Eyedea.EyeFace
         /// </summary>
         ERImageUtils erImageUtils = null;
 
-        private IntPtr loadFunctionFromDLL(IntPtr dllPtr, string functionName)
-        {
+        private IntPtr loadFunctionFromDLL(IntPtr dllPtr, string functionName) {
             IntPtr functionPtr = NativeMethods.GetProcAddress(dllPtr, functionName);
-            if (functionPtr == IntPtr.Zero)
-            {
+            if (functionPtr == IntPtr.Zero) {
                 throw new EfException(functionName + " null");
             }
 
@@ -1133,96 +1017,87 @@ namespace Eyedea.EyeFace
         /// EyeFace SDK DLL loading.
         /// </summary>
         /// <param name="eyefacesdkDir">Path to the EyeFace SDK folder.</param>
-        public EfCsSDK(string eyefacesdkDir)
-        {
+        public EfCsSDK(string eyefacesdkDir) {
             eyefacesdkDir.Replace('\\', '/');
             string eyefacesdkLibDir = Path.Combine(eyefacesdkDir, "lib/");
 
             // Add EyeFace SDK lib path to the PATH variable
             // to met dependencies loading during explicit linking.
             string pathVariable = Environment.GetEnvironmentVariable("PATH");
-            if (!pathVariable.Contains(eyefacesdkLibDir))
-            {
+            if (!pathVariable.Contains(eyefacesdkLibDir)) {
                 Environment.SetEnvironmentVariable("PATH", eyefacesdkLibDir + ";" + pathVariable);
             }
 
             string dllPath = Path.Combine(eyefacesdkLibDir, "EyeFace.dll");
             // open dll
             pDll = NativeMethods.LoadLibrary(@dllPath);
-            if (pDll == IntPtr.Zero)
-            {
+            if (pDll == IntPtr.Zero) {
                 throw new EfException("Loading library " + dllPath + " failed!");
             }
 
             //////////////////////////
             // load functions from dll
             //////////////////////////
-            pEfInitEyeFace = loadFunctionFromDLL(pDll, "efInitEyeFace");
-            pEfShutdownEyeFace = loadFunctionFromDLL(pDll, "efShutdownEyeFace");
-            pEfResetEyeFace = loadFunctionFromDLL(pDll, "efResetEyeFace");
-            pEfFreeEyeFace = loadFunctionFromDLL(pDll, "efFreeEyeFace");
-            pEfGetLibraryVersion = loadFunctionFromDLL(pDll, "efGetLibraryVersion");
-            pEfMain = loadFunctionFromDLL(pDll, "efMain");
-            pEfGetTrackInfo = loadFunctionFromDLL(pDll, "efGetTrackInfo");
-            pEfFreeTrackInfo = loadFunctionFromDLL(pDll, "efFreeTrackInfo");
+            pEfInitEyeFace                    = loadFunctionFromDLL(pDll, "efInitEyeFace");
+            pEfShutdownEyeFace                = loadFunctionFromDLL(pDll, "efShutdownEyeFace");
+            pEfResetEyeFace                   = loadFunctionFromDLL(pDll, "efResetEyeFace");
+            pEfFreeEyeFace                    = loadFunctionFromDLL(pDll, "efFreeEyeFace");
+            pEfGetLibraryVersion              = loadFunctionFromDLL(pDll, "efGetLibraryVersion");
+            pEfMain                           = loadFunctionFromDLL(pDll, "efMain");
+            pEfGetTrackInfo                   = loadFunctionFromDLL(pDll, "efGetTrackInfo");
+            pEfFreeTrackInfo                  = loadFunctionFromDLL(pDll, "efFreeTrackInfo");
             pEfLogToServerGetConnectionStatus = loadFunctionFromDLL(pDll, "efLogToServerGetConnectionStatus");
 
-            pEfRunFaceDetector = loadFunctionFromDLL(pDll, "efRunFaceDetector");
-            pEfFreeDetections = loadFunctionFromDLL(pDll, "efFreeDetections");
-            pEfUpdateTracker = loadFunctionFromDLL(pDll, "efUpdateTracker");
-            pEfRunFaceLandmark = loadFunctionFromDLL(pDll, "efRunFaceLandmark");
-            pEfFreeLandmarks = loadFunctionFromDLL(pDll, "efFreeLandmarks");
-            pEfRecognizeFaceAttributes = loadFunctionFromDLL(pDll, "efRecognizeFaceAttributes");
-            pEfFreeAttributes = loadFunctionFromDLL(pDll, "efFreeAttributes");
-            pEfLogToFileWriteTrackInfo = loadFunctionFromDLL(pDll, "efLogToFileWriteTrackInfo");
-            pEfLogToServerSendPing = loadFunctionFromDLL(pDll, "efLogToServerSendPing");
-            pEfLogToServerSendTrackInfo = loadFunctionFromDLL(pDll, "efLogToServerSendTrackInfo");
+            pEfRunFaceDetector                = loadFunctionFromDLL(pDll, "efRunFaceDetector");
+            pEfFreeDetections                 = loadFunctionFromDLL(pDll, "efFreeDetections");
+            pEfUpdateTracker                  = loadFunctionFromDLL(pDll, "efUpdateTracker");
+            pEfRunFaceLandmark                = loadFunctionFromDLL(pDll, "efRunFaceLandmark");
+            pEfFreeLandmarks                  = loadFunctionFromDLL(pDll, "efFreeLandmarks");
+            pEfRecognizeFaceAttributes        = loadFunctionFromDLL(pDll, "efRecognizeFaceAttributes");
+            pEfFreeAttributes                 = loadFunctionFromDLL(pDll, "efFreeAttributes");
+            pEfLogToFileWriteTrackInfo        = loadFunctionFromDLL(pDll, "efLogToFileWriteTrackInfo");
+            pEfLogToServerSendPing            = loadFunctionFromDLL(pDll, "efLogToServerSendPing");
+            pEfLogToServerSendTrackInfo       = loadFunctionFromDLL(pDll, "efLogToServerSendTrackInfo");
 
             // Try to load HASP functions if available
-            try
-            {
-                pEfHaspGetCurrentLoginKeyId = loadFunctionFromDLL(pDll, "efHaspGetCurrentLoginKeyId");
-                pEfHaspGetExpirationDate = loadFunctionFromDLL(pDll, "efHaspGetExpirationDate");
-            }
-            catch (Exception)
-            {
-                pEfHaspGetCurrentLoginKeyId = IntPtr.Zero;
-                pEfHaspGetExpirationDate = IntPtr.Zero;
+            try {
+                pEfHaspGetCurrentLoginKeyId   = loadFunctionFromDLL(pDll, "efHaspGetCurrentLoginKeyId");
+                pEfHaspGetExpirationDate      = loadFunctionFromDLL(pDll, "efHaspGetExpirationDate");
+            } catch (Exception) {
+                pEfHaspGetCurrentLoginKeyId   = IntPtr.Zero;
+                pEfHaspGetExpirationDate      = IntPtr.Zero;
             }
 
             ///////////////////////
             // Setup delegates
             ///////////////////////
-            fcnEfInitEyeFace = (fcn_efInitEyeFace)Marshal.GetDelegateForFunctionPointer(pEfInitEyeFace, typeof(fcn_efInitEyeFace));
-            fcnEfShutdownEyeFace = (fcn_efShutdownEyeFace)Marshal.GetDelegateForFunctionPointer(pEfShutdownEyeFace, typeof(fcn_efShutdownEyeFace));
-            fcnEfResetEyeFace = (fcn_efResetEyeFace)Marshal.GetDelegateForFunctionPointer(pEfResetEyeFace, typeof(fcn_efResetEyeFace));
-            fcnEfFreeEyeFace = (fcn_efFreeEyeFace)Marshal.GetDelegateForFunctionPointer(pEfFreeEyeFace, typeof(fcn_efFreeEyeFace));
-            fcnEfGetLibraryVersion = (fcn_efGetLibraryVersion)Marshal.GetDelegateForFunctionPointer(pEfGetLibraryVersion, typeof(fcn_efGetLibraryVersion));
-            fcnEfMain = (fcn_efMain)Marshal.GetDelegateForFunctionPointer(pEfMain, typeof(fcn_efMain));
-            fcnEfGetTrackInfo = (fcn_efGetTrackInfo)Marshal.GetDelegateForFunctionPointer(pEfGetTrackInfo, typeof(fcn_efGetTrackInfo));
-            fcnEfFreeTrackInfo = (fcn_efFreeTrackInfo)Marshal.GetDelegateForFunctionPointer(pEfFreeTrackInfo, typeof(fcn_efFreeTrackInfo));
+            fcnEfInitEyeFace                    = (fcn_efInitEyeFace)                   Marshal.GetDelegateForFunctionPointer(pEfInitEyeFace,                    typeof(fcn_efInitEyeFace));
+            fcnEfShutdownEyeFace                = (fcn_efShutdownEyeFace)               Marshal.GetDelegateForFunctionPointer(pEfShutdownEyeFace,                typeof(fcn_efShutdownEyeFace));
+            fcnEfResetEyeFace                   = (fcn_efResetEyeFace)                  Marshal.GetDelegateForFunctionPointer(pEfResetEyeFace,                   typeof(fcn_efResetEyeFace));
+            fcnEfFreeEyeFace                    = (fcn_efFreeEyeFace)                   Marshal.GetDelegateForFunctionPointer(pEfFreeEyeFace,                    typeof(fcn_efFreeEyeFace));
+            fcnEfGetLibraryVersion              = (fcn_efGetLibraryVersion)             Marshal.GetDelegateForFunctionPointer(pEfGetLibraryVersion,              typeof(fcn_efGetLibraryVersion));
+            fcnEfMain                           = (fcn_efMain)                          Marshal.GetDelegateForFunctionPointer(pEfMain,                           typeof(fcn_efMain));
+            fcnEfGetTrackInfo                   = (fcn_efGetTrackInfo)                  Marshal.GetDelegateForFunctionPointer(pEfGetTrackInfo,                   typeof(fcn_efGetTrackInfo));
+            fcnEfFreeTrackInfo                  = (fcn_efFreeTrackInfo)                 Marshal.GetDelegateForFunctionPointer(pEfFreeTrackInfo,                  typeof(fcn_efFreeTrackInfo));
             fcnEfLogToServerGetConnectionStatus = (fcn_efLogToServerGetConnectionStatus)Marshal.GetDelegateForFunctionPointer(pEfLogToServerGetConnectionStatus, typeof(fcn_efLogToServerGetConnectionStatus));
 
-            fcnEfRunFaceDetector = (fcn_efRunFaceDetector)Marshal.GetDelegateForFunctionPointer(pEfRunFaceDetector, typeof(fcn_efRunFaceDetector));
-            fcnEfFreeDetections = (fcn_efFreeDetections)Marshal.GetDelegateForFunctionPointer(pEfFreeDetections, typeof(fcn_efFreeDetections));
-            fcnEfUpdateTracker = (fcn_efUpdateTracker)Marshal.GetDelegateForFunctionPointer(pEfUpdateTracker, typeof(fcn_efUpdateTracker));
-            fcnEfRunFaceLandmark = (fcn_efRunFaceLandmark)Marshal.GetDelegateForFunctionPointer(pEfRunFaceLandmark, typeof(fcn_efRunFaceLandmark));
-            fcnEfFreeLandmarks = (fcn_efFreeLandmarks)Marshal.GetDelegateForFunctionPointer(pEfFreeLandmarks, typeof(fcn_efFreeLandmarks));
-            fcnEfRecognizeFaceAttributes = (fcn_efRecognizeFaceAttributes)Marshal.GetDelegateForFunctionPointer(pEfRecognizeFaceAttributes, typeof(fcn_efRecognizeFaceAttributes));
-            fcnEfFreeAttributes = (fcn_efFreeAttributes)Marshal.GetDelegateForFunctionPointer(pEfFreeAttributes, typeof(fcn_efFreeAttributes));
-            fcnEfLogToFileWriteTrackInfo = (fcn_efLogToFileWriteTrackInfo)Marshal.GetDelegateForFunctionPointer(pEfLogToFileWriteTrackInfo, typeof(fcn_efLogToFileWriteTrackInfo));
-            fcnEfLogToServerSendPing = (fcn_efLogToServerSendPing)Marshal.GetDelegateForFunctionPointer(pEfLogToServerSendPing, typeof(fcn_efLogToServerSendPing));
-            fcnEfLogToServerSendTrackInfo = (fcn_efLogToServerSendTrackInfo)Marshal.GetDelegateForFunctionPointer(pEfLogToServerSendTrackInfo, typeof(fcn_efLogToServerSendTrackInfo));
+            fcnEfRunFaceDetector                = (fcn_efRunFaceDetector)               Marshal.GetDelegateForFunctionPointer(pEfRunFaceDetector,                typeof(fcn_efRunFaceDetector));
+            fcnEfFreeDetections                 = (fcn_efFreeDetections)                Marshal.GetDelegateForFunctionPointer(pEfFreeDetections,                 typeof(fcn_efFreeDetections));
+            fcnEfUpdateTracker                  = (fcn_efUpdateTracker)                 Marshal.GetDelegateForFunctionPointer(pEfUpdateTracker,                  typeof(fcn_efUpdateTracker));
+            fcnEfRunFaceLandmark                = (fcn_efRunFaceLandmark)               Marshal.GetDelegateForFunctionPointer(pEfRunFaceLandmark,                typeof(fcn_efRunFaceLandmark));
+            fcnEfFreeLandmarks                  = (fcn_efFreeLandmarks)                 Marshal.GetDelegateForFunctionPointer(pEfFreeLandmarks,                  typeof(fcn_efFreeLandmarks));
+            fcnEfRecognizeFaceAttributes        = (fcn_efRecognizeFaceAttributes)       Marshal.GetDelegateForFunctionPointer(pEfRecognizeFaceAttributes,        typeof(fcn_efRecognizeFaceAttributes));
+            fcnEfFreeAttributes                 = (fcn_efFreeAttributes)                Marshal.GetDelegateForFunctionPointer(pEfFreeAttributes,                 typeof(fcn_efFreeAttributes));
+            fcnEfLogToFileWriteTrackInfo        = (fcn_efLogToFileWriteTrackInfo)       Marshal.GetDelegateForFunctionPointer(pEfLogToFileWriteTrackInfo,        typeof(fcn_efLogToFileWriteTrackInfo));
+            fcnEfLogToServerSendPing            = (fcn_efLogToServerSendPing)           Marshal.GetDelegateForFunctionPointer(pEfLogToServerSendPing,            typeof(fcn_efLogToServerSendPing));
+            fcnEfLogToServerSendTrackInfo       = (fcn_efLogToServerSendTrackInfo)      Marshal.GetDelegateForFunctionPointer(pEfLogToServerSendTrackInfo,       typeof(fcn_efLogToServerSendTrackInfo));
 
-            try
-            {
-                fcnEfHaspGetCurrentLoginKeyId = (fcn_efHaspGetCurrentLoginKeyId)Marshal.GetDelegateForFunctionPointer(pEfHaspGetCurrentLoginKeyId, typeof(fcn_efHaspGetCurrentLoginKeyId));
-                fcnEfHaspGetExpirationDate = (fcn_efHaspGetExpirationDate)Marshal.GetDelegateForFunctionPointer(pEfHaspGetExpirationDate, typeof(fcn_efHaspGetExpirationDate));
-            }
-            catch (Exception)
-            {
-                fcnEfHaspGetCurrentLoginKeyId = null;
-                fcnEfHaspGetExpirationDate = null;
+            try {
+                //fcnEfHaspGetCurrentLoginKeyId   = (fcn_efHaspGetCurrentLoginKeyId)      Marshal.GetDelegateForFunctionPointer(pEfHaspGetCurrentLoginKeyId,       typeof(fcn_efHaspGetCurrentLoginKeyId));
+                //fcnEfHaspGetExpirationDate      = (fcn_efHaspGetExpirationDate)         Marshal.GetDelegateForFunctionPointer(pEfHaspGetExpirationDate,          typeof(fcn_efHaspGetExpirationDate));
+            } catch (Exception) {
+                fcnEfHaspGetCurrentLoginKeyId   = null;
+                fcnEfHaspGetExpirationDate      = null;
             }
 
             erImageUtils = new ERImageUtils(pDll);
@@ -1231,18 +1106,12 @@ namespace Eyedea.EyeFace
         /// <summary>
         /// EyeFace SDK instance destructor. Unloads the EyeFace SDK instance and the DLL library.
         /// </summary>
-        ~EfCsSDK()
-        {
-            try
-            {
-                unsafe
-                {
-                    if (pDll != IntPtr.Zero)
-                    {
-                        if (pvModuleState != null)
-                        {
-                            fixed (void** ppvModuleState = &pvModuleState)
-                            {
+        ~EfCsSDK() {
+            try {
+                unsafe {
+                    if (pDll != IntPtr.Zero) {
+                        if (pvModuleState != null) {
+                            fixed (void** ppvModuleState = &pvModuleState) {
                                 fcnEfFreeEyeFace(ppvModuleState);
                             }
                         }
@@ -1257,22 +1126,17 @@ namespace Eyedea.EyeFace
         /// Checks whether the module is loaded.
         /// </summary>
         /// <returns>Loading state of the module.</returns>
-        public bool IsLoaded()
-        {
-            unsafe
-            {
+        public bool IsLoaded() {
+            unsafe {
                 return pvModuleState == null ? false : true;
             }
         }
 
-        private void checkModuleInitialized(bool checkSDKInit = true)
-        {
-            unsafe
-            {
+        private void checkModuleInitialized(bool checkSDKInit = true) {
+            unsafe {
                 if ((pvModuleState == null && checkSDKInit) ||
                     pDll == IntPtr.Zero ||
-                    erImageUtils == null)
-                {
+                    erImageUtils == null) {
                     throw new EfUninitializedModule();
                 }
             }
@@ -1283,8 +1147,7 @@ namespace Eyedea.EyeFace
         /// </summary>
         /// <param name="bitmap">Input bitmap to convert.</param>
         /// <returns>Created <seealso cref="ERImage"/> with input image data.</returns>
-        public ERImage csBitmapToERImage(Bitmap bitmap)
-        {
+        public ERImage csBitmapToERImage(Bitmap bitmap) {
             checkModuleInitialized(false);
             return erImageUtils.csBitmapToERImage(bitmap);
         }
@@ -1299,8 +1162,7 @@ namespace Eyedea.EyeFace
         /// <param name="image">Input image <see cref="ERImage"/> to convert.</param>
         /// <returns>Bitmap containing image data.</returns>
         /// <exception cref="ERException">When unsupported color model used (<see cref="ERImageColorModel.ER_IMAGE_COLORMODEL_YCBCR420"/>).</exception>
-        public Bitmap erImageToCsBitmap(ERImage image)
-        {
+        public Bitmap erImageToCsBitmap(ERImage image) {
             checkModuleInitialized(false);
             return erImageUtils.erImageToCsBitmap(image);
         }
@@ -1310,8 +1172,7 @@ namespace Eyedea.EyeFace
         /// </summary>
         /// <param name="filename">Path to the file to read the image from.</param>
         /// <returns>Image <seealso cref="ERImage"/> read from the file.</returns>
-        public ERImage erImageRead(string filename)
-        {
+        public ERImage erImageRead(string filename) {
             checkModuleInitialized(false);
             return erImageUtils.erImageRead(filename);
         }
@@ -1321,8 +1182,7 @@ namespace Eyedea.EyeFace
         /// </summary>
         /// <param name="image">Input image to write.</param>
         /// <param name="filename">Path to the file to write the image.</param>
-        public void erImageWrite(ERImage image, string filename)
-        {
+        public void erImageWrite(ERImage image, string filename) {
             checkModuleInitialized(false);
             erImageUtils.erImageWrite(image, filename);
         }
@@ -1331,8 +1191,7 @@ namespace Eyedea.EyeFace
         /// Frees the input <seealso cref="ERImage"/>.
         /// </summary>
         /// <param name="image">Input image to free.</param>
-        public void erImageFree(ref ERImage image)
-        {
+        public void erImageFree(ref ERImage image) {
             checkModuleInitialized(false);
             erImageUtils.erImageFree(ref image);
         }
@@ -1343,25 +1202,19 @@ namespace Eyedea.EyeFace
         /// <param name="eyefacesdkDir">Path to the EyeFace SDK folder.</param>
         /// <param name="configIniDir">Path to the folder containing EyeFace SDK config ini file.</param>
         /// <param name="configIniFilename">Filename of the EyeFace SDK config ini file.</param>
-        public bool efInitEyeFace(string eyefacesdkDir, string configIniDir, string configIniFilename)
-        {
-            unsafe
-            {
-                if (pDll == IntPtr.Zero)
-                {
+        public bool efInitEyeFace(string eyefacesdkDir, string configIniDir, string configIniFilename) {
+            unsafe {
+                if (pDll == IntPtr.Zero) {
                     return false;
                 }
 
-                if (pvModuleState != null)
-                {
-                    fixed (void** ppvModuleState = &pvModuleState)
-                    {
+                if (pvModuleState != null) {
+                    fixed (void** ppvModuleState = &pvModuleState) {
                         fcnEfFreeEyeFace(ppvModuleState);
                     }
                 }
 
-                fixed (void** ppvModuleState = &pvModuleState)
-                {
+                fixed (void** ppvModuleState = &pvModuleState) {
                     bool initStatus = fcnEfInitEyeFace(eyefacesdkDir, configIniDir, configIniFilename, ppvModuleState);
                     return initStatus;
                 }
@@ -1371,10 +1224,8 @@ namespace Eyedea.EyeFace
         /// <summary>
         /// Flushes tracking buffers to logs and outputs before EyeFace termination / reset. This enables clients to get tracking result on last frame.
         /// </summary>
-        public void efShutdownEyeFace()
-        {
-            unsafe
-            {
+        public void efShutdownEyeFace() {
+            unsafe {
                 checkModuleInitialized();
                 fcnEfShutdownEyeFace(pvModuleState);
             }
@@ -1383,10 +1234,8 @@ namespace Eyedea.EyeFace
         /// <summary>
         /// Clears/resets state structure without deallocation. All tracks are deleted.
         /// </summary>
-        public void efResetEyeFace()
-        {
-            unsafe
-            {
+        public void efResetEyeFace() {
+            unsafe {
                 checkModuleInitialized();
                 fcnEfResetEyeFace(pvModuleState);
             }
@@ -1395,13 +1244,10 @@ namespace Eyedea.EyeFace
         /// <summary>
         /// Frees EyeFace SDK engine. Releases the license sessions.
         /// </summary>
-        public void efFreeEyeFace()
-        {
-            unsafe
-            {
+        public void efFreeEyeFace() {
+            unsafe {
                 checkModuleInitialized();
-                fixed (void** ppvModuleState = &pvModuleState)
-                {
+                fixed (void** ppvModuleState = &pvModuleState) {
                     fcnEfFreeEyeFace(ppvModuleState);
                 }
                 pvModuleState = null;
@@ -1413,10 +1259,8 @@ namespace Eyedea.EyeFace
         /// The return value must be the same as defined in EYEFACE_VERSION_NUMBER global variable, otherwise there is a header/library version mismatch.
         /// </summary>
         /// <returns>Version number.</returns>
-        public int efGetLibraryVersion()
-        {
-            unsafe
-            {
+        public int efGetLibraryVersion() {
+            unsafe {
                 int? version = fcnEfGetLibraryVersion?.Invoke();
                 return version.GetValueOrDefault(0);
             }
@@ -1432,10 +1276,8 @@ namespace Eyedea.EyeFace
         /// <param name="frameTime">Current frame time since <see cref="efInitEyeFace(string, string, string)"/> 
         /// in seconds with millisecond precision (i.e. the first frame time can be 0.000).</param>
         /// <returns>true on success, false on failure.</returns>
-        public bool efMain(ERImage image, EfBoundingBox boundingBox, double frameTime)
-        {
-            unsafe
-            {
+        public bool efMain(ERImage image, EfBoundingBox boundingBox, double frameTime) {
+            unsafe {
                 checkModuleInitialized();
                 bool mainStatus = fcnEfMain(image, &boundingBox, frameTime, pvModuleState);
                 return mainStatus;
@@ -1449,8 +1291,7 @@ namespace Eyedea.EyeFace
         /// <param name="frameTime">Current frame time since <see cref="efInitEyeFace(string, string, string)"/> 
         /// in seconds with millisecond precision (i.e. the first frame time can be 0.000).</param>
         /// <returns>true on success, false on failure.</returns>
-        public bool efMain(ERImage image, double frameTime)
-        {
+        public bool efMain(ERImage image, double frameTime) {
             EfBoundingBox boundingBox = new EfBoundingBox(image.width, image.height);
             return efMain(image, boundingBox, frameTime);
         }
@@ -1459,15 +1300,12 @@ namespace Eyedea.EyeFace
         /// Returns the aggregated result related to a single frame of video. Can be used for real-time visualisation or statistics.
         /// </summary>
         /// <returns>Data structure filled with results. Must be freed with <see cref="efFreeTrackInfo(EfTrackInfoArray)"/>.</returns>
-        public EfTrackInfoArray efGetTrackInfo()
-        {
-            unsafe
-            {
+        public EfTrackInfoArray efGetTrackInfo() {
+            unsafe {
                 checkModuleInitialized();
                 EfUnmanagedArray unmanagedArray = new EfUnmanagedArray();
                 bool trackInfoStatus = fcnEfGetTrackInfo(&unmanagedArray, pvModuleState);
-                if (!trackInfoStatus)
-                {
+                if (!trackInfoStatus) {
                     throw new EfException("Cannot get EfTrackInfoArray.");
                 }
                 EfTrackInfoArray trackInfoArray = new EfTrackInfoArray(unmanagedArray);
@@ -1481,15 +1319,12 @@ namespace Eyedea.EyeFace
         /// Get status of connection to log-server.
         /// </summary>
         /// <returns><see cref="EfLogToServerStatus"/> data structure, where the result will be stored.</returns>
-        public EfLogToServerStatus efLogToServerGetConnectionStatus()
-        {
-            unsafe
-            {
+        public EfLogToServerStatus efLogToServerGetConnectionStatus() {
+            unsafe {
                 checkModuleInitialized();
                 EfLogToServerStatus connectionStatus = new EfLogToServerStatus();
                 bool getStatus = fcnEfLogToServerGetConnectionStatus(&connectionStatus, pvModuleState);
-                if (!getStatus)
-                {
+                if (!getStatus) {
                     throw new EfException("Error during getting log to server connection status.");
                 }
 
@@ -1503,15 +1338,12 @@ namespace Eyedea.EyeFace
         /// </summary>
         /// <param name="image">Input image in ERImage format. Implementation is guaranteed not to write into image buffers.</param>
         /// <returns>On successful completition, structure filled with face detections for the given image.</returns>
-        public EfDetectionArray efRunFaceDetector(ERImage image)
-        {
-            unsafe
-            {
+        public EfDetectionArray efRunFaceDetector(ERImage image) {
+            unsafe {
                 checkModuleInitialized();
                 EfUnmanagedArray unmanagedArray = new EfUnmanagedArray();
                 bool detectionStatus = fcnEfRunFaceDetector(image, &unmanagedArray, pvModuleState);
-                if (!detectionStatus)
-                {
+                if (!detectionStatus) {
                     throw new EfException("Error during detection.");
                 }
                 EfDetectionArray detectionArray = new EfDetectionArray(unmanagedArray);
@@ -1530,25 +1362,19 @@ namespace Eyedea.EyeFace
         /// <param name="frameTime">Image frame time for tracking purposes (in seconds). 
         /// MUST be increasing. If timestamp is repeated or goes back in time, it results in undefined behavior.</param>
         /// <returns>true on success, false on failure.</returns>
-        public bool efUpdateTracker(ERImage image, EfDetectionArray detectionArray, double frameTime)
-        {
-            unsafe
-            {
+        public bool efUpdateTracker(ERImage image, EfDetectionArray detectionArray, double frameTime) {
+            unsafe {
                 checkModuleInitialized();
                 EfUnmanagedArray unmanagedArray = new EfUnmanagedArray();
                 unmanagedArray.num_elements = detectionArray.num_detections;
 
                 GCHandle handle = GCHandle.Alloc(detectionArray.detections, GCHandleType.Pinned);
-                try
-                {
+                try {
                     unmanagedArray.array_elements = handle.AddrOfPinnedObject();
                     bool updateStatus = fcnEfUpdateTracker(image, unmanagedArray, frameTime, pvModuleState);
                     return updateStatus;
-                }
-                finally
-                {
-                    if (handle.IsAllocated)
-                    {
+                } finally {
+                    if (handle.IsAllocated) {
                         handle.Free();
                     }
                 }
@@ -1567,10 +1393,8 @@ namespace Eyedea.EyeFace
         /// true value at index i means that the i-th detection in detectionArray will be processed. 
         /// If null, all detections are processed.</param>
         /// <returns>On successful completion, structure filled with landmark data of the faces in detectionArray.</returns>
-        public EfLandmarksArray efRunFaceLandmark(ERImage image, EfDetectionArray detectionArray, bool[] detectionsToProcess)
-        {
-            unsafe
-            {
+        public EfLandmarksArray efRunFaceLandmark(ERImage image, EfDetectionArray detectionArray, bool[] detectionsToProcess) {
+            unsafe {
                 checkModuleInitialized();
                 EfUnmanagedArray detectionArrayUnmg = new EfUnmanagedArray();
                 detectionArrayUnmg.num_elements = detectionArray.num_detections;
@@ -1578,30 +1402,24 @@ namespace Eyedea.EyeFace
                 EfBool[] detectionsToProcessEf = EfBool.boolArrayToEfBoolArray(detectionsToProcess);
                 EfUnmanagedArray landmarksArrayUnmg = new EfUnmanagedArray();
 
-                GCHandle handleDet = GCHandle.Alloc(detectionArray.detections, GCHandleType.Pinned);
+                GCHandle handleDet  = GCHandle.Alloc(detectionArray.detections, GCHandleType.Pinned);
                 GCHandle handleProc = GCHandle.Alloc(detectionsToProcessEf, GCHandleType.Pinned);
-                try
-                {
+                try {
                     detectionArrayUnmg.array_elements = handleDet.AddrOfPinnedObject();
                     IntPtr detectionsToProcesPtr = handleProc.AddrOfPinnedObject();
                     bool landmarkStatus = fcnEfRunFaceLandmark(image, detectionArrayUnmg, detectionsToProcesPtr, &landmarksArrayUnmg, pvModuleState);
-                    if (!landmarkStatus)
-                    {
+                    if (!landmarkStatus) {
                         throw new EfException("Error during landmarks detection.");
                     }
                     EfLandmarksArray landmarksArray = new EfLandmarksArray(landmarksArrayUnmg);
                     fcnEfFreeLandmarks(&landmarksArrayUnmg, pvModuleState);
 
                     return landmarksArray;
-                }
-                finally
-                {
-                    if (handleDet.IsAllocated)
-                    {
+                } finally {
+                    if (handleDet.IsAllocated) {
                         handleDet.Free();
                     }
-                    if (handleProc.IsAllocated)
-                    {
+                    if (handleProc.IsAllocated) {
                         handleProc.Free();
                     }
                 }
@@ -1617,8 +1435,7 @@ namespace Eyedea.EyeFace
         /// <param name="detectionArray"><see cref="EfDetectionArray"/> structure returned by <see cref="efRunFaceDetector(ERImage)"/>. 
         /// Implementation is guaranteed not to write to detectionArray.detections.</param>
         /// <returns>On successful completion, structure filled with landmark data of the faces in detectionArray.</returns>
-        public EfLandmarksArray efRunFaceLandmark(ERImage image, EfDetectionArray detectionArray)
-        {
+        public EfLandmarksArray efRunFaceLandmark(ERImage image, EfDetectionArray detectionArray) {
             return efRunFaceLandmark(image, detectionArray, null);
         }
 
@@ -1646,11 +1463,9 @@ namespace Eyedea.EyeFace
         /// if false, returns immediatly and the results are appended to tracks later.</param>
         /// <returns>Optional output of face attributes of the faces in detectionArray, only filled if processSequentially == true. 
         /// Returned empty structure if processSequentially == false.</returns>
-        public EfFaceAttributesArray efRecognizeFaceAttributes(ERImage image, EfDetectionArray detectionArray, EfLandmarksArray facialLandmarksArray,
-                                                               bool[] detectionsToProcess, uint requestFlag, double frameTime, bool processSequentially)
-        {
-            unsafe
-            {
+        public EfFaceAttributesArray efRecognizeFaceAttributes(ERImage image, EfDetectionArray detectionArray, EfLandmarksArray facialLandmarksArray, 
+                                                               bool[] detectionsToProcess, uint requestFlag, double frameTime, bool processSequentially) {
+            unsafe {
                 checkModuleInitialized();
                 EfUnmanagedArray detectionArrayUnmg = new EfUnmanagedArray();
                 detectionArrayUnmg.num_elements = detectionArray.num_detections;
@@ -1659,42 +1474,35 @@ namespace Eyedea.EyeFace
                 landmarksArrayUnmg.num_elements = facialLandmarksArray.num_detections;
 
                 EfBool[] detectionsToProcessEf = EfBool.boolArrayToEfBoolArray(detectionsToProcess);
-                EfBool processSequentiallyEf = processSequentially;
+                EfBool  processSequentiallyEf = processSequentially;
 
                 EfUnmanagedArray faceAttributesArrayUnmg = new EfUnmanagedArray();
 
-                GCHandle handleDet = GCHandle.Alloc(detectionArray.detections, GCHandleType.Pinned);
+                GCHandle handleDet  = GCHandle.Alloc(detectionArray.detections, GCHandleType.Pinned);
                 GCHandle handleLand = GCHandle.Alloc(facialLandmarksArray.landmarks, GCHandleType.Pinned);
                 GCHandle handleProc = GCHandle.Alloc(detectionsToProcessEf, GCHandleType.Pinned);
-                try
-                {
+                try {
                     detectionArrayUnmg.array_elements = handleDet.AddrOfPinnedObject();
                     landmarksArrayUnmg.array_elements = handleLand.AddrOfPinnedObject();
                     IntPtr detectionsToProcesPtr = handleProc.AddrOfPinnedObject();
-                    bool faceAttributesStatus = fcnEfRecognizeFaceAttributes(image, detectionArrayUnmg, &landmarksArrayUnmg,
-                                                                             detectionsToProcesPtr, requestFlag, frameTime,
+                    bool faceAttributesStatus = fcnEfRecognizeFaceAttributes(image, detectionArrayUnmg, &landmarksArrayUnmg, 
+                                                                             detectionsToProcesPtr, requestFlag, frameTime, 
                                                                              processSequentiallyEf, &faceAttributesArrayUnmg, pvModuleState);
-                    if (!faceAttributesStatus)
-                    {
+                    if (!faceAttributesStatus) {
                         throw new EfException("Error during face attributes recognition.");
                     }
                     EfFaceAttributesArray faceAttributesArray = new EfFaceAttributesArray(faceAttributesArrayUnmg);
                     fcnEfFreeAttributes(&faceAttributesArrayUnmg, pvModuleState);
 
                     return faceAttributesArray;
-                }
-                finally
-                {
-                    if (handleDet.IsAllocated)
-                    {
+                } finally {
+                    if (handleDet.IsAllocated) {
                         handleDet.Free();
                     }
-                    if (handleLand.IsAllocated)
-                    {
+                    if (handleLand.IsAllocated) {
                         handleLand.Free();
                     }
-                    if (handleProc.IsAllocated)
-                    {
+                    if (handleProc.IsAllocated) {
                         handleProc.Free();
                     }
                 }
@@ -1714,10 +1522,9 @@ namespace Eyedea.EyeFace
         /// <param name="frameTime">Image frame time for tracking purposes (in seconds with millisecond precision). 
         /// If timestamp is repeated or goes back in time, it results in undefined behavior. Set to zero for image database processing.</param>
         /// <returns>Output of face attributes of the faces in detectionArray.</returns>
-        public EfFaceAttributesArray efRecognizeFaceAttributes(ERImage image, EfDetectionArray detectionArray,
-                                                               EfLandmarksArray facialLandmarksArray, double frameTime)
-        {
-            return efRecognizeFaceAttributes(image, detectionArray, facialLandmarksArray,
+        public EfFaceAttributesArray efRecognizeFaceAttributes(ERImage image, EfDetectionArray detectionArray, 
+                                                               EfLandmarksArray facialLandmarksArray, double frameTime) {
+            return efRecognizeFaceAttributes(image, detectionArray, facialLandmarksArray, 
                                              null, EfConstants.EF_FACEATTRIBUTES_ALL, frameTime, true);
         }
 
@@ -1725,10 +1532,8 @@ namespace Eyedea.EyeFace
         /// Writes information about current state of tracks into a log file. The log file must be specified and enabled in config.ini.
         /// </summary>
         /// <returns>true on success, false on failure.</returns>
-        public bool efLogToFileWriteTrackInfo()
-        {
-            unsafe
-            {
+        public bool efLogToFileWriteTrackInfo() {
+            unsafe {
                 checkModuleInitialized();
                 bool logStatus = fcnEfLogToFileWriteTrackInfo(pvModuleState);
 
@@ -1741,10 +1546,8 @@ namespace Eyedea.EyeFace
         /// The log server connection must be specified and enabled in config.ini.
         /// </summary>
         /// <returns>true on success, false on failure.</returns>
-        public bool efLogToServerSendPing()
-        {
-            unsafe
-            {
+        public bool efLogToServerSendPing() {
+            unsafe {
                 checkModuleInitialized();
                 bool logStatus = fcnEfLogToServerSendPing(pvModuleState);
 
@@ -1757,10 +1560,8 @@ namespace Eyedea.EyeFace
         /// The log server connection must be specified and enabled in config.ini.
         /// </summary>
         /// <returns>true on success, false on failure.</returns>
-        public bool efLogToServerSendTrackInfo()
-        {
-            unsafe
-            {
+        public bool efLogToServerSendTrackInfo() {
+            unsafe {
                 checkModuleInitialized();
                 bool logStatus = fcnEfLogToServerSendTrackInfo(pvModuleState);
 
@@ -1773,13 +1574,10 @@ namespace Eyedea.EyeFace
         /// Must be used prior to <see cref="efInitEyeFace(string, string, string)"/> to work.
         /// </summary>
         /// <returns>Key number of key containing EyeFace SDK license.</returns>
-        public long efHaspGetCurrentLoginKeyId()
-        {
-            unsafe
-            {
+        public long efHaspGetCurrentLoginKeyId() {
+            unsafe {
                 long? key = fcnEfHaspGetCurrentLoginKeyId?.Invoke();
-                if (!key.HasValue)
-                {
+                if (!key.HasValue) {
                     throw new EfException("Function efHaspGetCurrentLoginKeyId is not available.");
                 }
 
@@ -1793,27 +1591,20 @@ namespace Eyedea.EyeFace
         /// <param name="key">ID of the key in question.</param>
         /// <param name="expirationTime"><see cref="EfHaspTime"/> structure pointer, for expiration date output.</param>
         /// <returns>true for valid license, false for not valid.</returns>
-        public bool efHaspGetExpirationDate(long key, out EfHaspTime expirationTime)
-        {
-            unsafe
-            {
+        public bool efHaspGetExpirationDate(long key, out EfHaspTime expirationTime) {
+            unsafe {
                 expirationTime = new EfHaspTime(0, 0, 0, 0, 0, 0);
                 int? valid;
-                fixed (EfHaspTime* expTimePtr = &expirationTime)
-                {
+                fixed (EfHaspTime* expTimePtr = &expirationTime) {
                     valid = fcnEfHaspGetExpirationDate?.Invoke(key, expTimePtr);
                 }
-                if (!valid.HasValue)
-                {
+                if (!valid.HasValue) {
                     throw new EfException("Function efHaspGetExpirationDate is not available.");
                 }
 
-                if (valid == 1)
-                {
+                if (valid == 1) {
                     return true;
-                }
-                else
-                {
+                } else {
                     return false;
                 }
             }

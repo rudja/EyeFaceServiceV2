@@ -23,7 +23,7 @@
 
 #include "EyeFaceType.h"        // Types used in EyeFace SDK, Standard API
 
-#define EYEFACE_VERSION_NUMBER 40040615    // EyeFace SDK header version
+#define EYEFACE_VERSION_NUMBER 40040804    // EyeFace SDK header version
 
 /*! \defgroup EyeFace EyeFace API.
  @{ 

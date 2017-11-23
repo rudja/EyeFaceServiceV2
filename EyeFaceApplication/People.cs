@@ -14,6 +14,15 @@ namespace EyeFaceApplication
         public DateTime dateUTC { get; set; }
         public double attention_time { get; set; }
         public int satisfied { get; set; }
+
+        public Attraction()
+        {
+            project_name = "";
+            dateUTC = DateTime.UtcNow;
+            attention_time = 0;
+            satisfied = 0;
+
+        }
     }
 
     public class People

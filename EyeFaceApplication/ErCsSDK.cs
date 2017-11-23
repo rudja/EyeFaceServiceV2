@@ -1,4 +1,4 @@
-﻿////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                    //
 //    C# interface to Eyedea ERImage                                                  //
 // ---------------------------------------------------------------------------------- //
@@ -42,8 +42,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
-namespace Eyedea.er
-{
+namespace Eyedea.er {
     /// <summary>
     /// Specifies the color model of the <seealso cref="ERImage"/>.<para/>
     /// NOTE: ER_IMAGE_COLORMODEL_YCBCR420 color model is supported as an crop image input only.
@@ -129,8 +128,7 @@ namespace Eyedea.er
             : base(info, context) { }
     };
 
-    public class ERImageUtils
-    {
+    public class ERImageUtils {
         /// <summary>
         /// Native methods for explicit linking.
         /// </summary>
@@ -150,11 +148,11 @@ namespace Eyedea.er
         // ERImage API function types
         ///////
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        unsafe private delegate Int32 fcn_erImageAllocate(ERImage* image, UInt32 width, UInt32 height, ERImageColorModel color_model, ERImageDataType data_type);
+        unsafe private delegate Int32  fcn_erImageAllocate(ERImage* image, UInt32 width, UInt32 height, ERImageColorModel color_model, ERImageDataType data_type);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        unsafe private delegate Int32 fcn_erImageAllocateBlank(ERImage* image, UInt32 width, UInt32 height, ERImageColorModel color_model, ERImageDataType data_type);
+        unsafe private delegate Int32  fcn_erImageAllocateBlank(ERImage* image, UInt32 width, UInt32 height, ERImageColorModel color_model, ERImageDataType data_type);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        unsafe private delegate Int32 fcn_erImageAllocateAndWrap(ERImage* image, UInt32 width, UInt32 height, ERImageColorModel color_model, ERImageDataType data_type, byte* data, UInt32 step);
+        unsafe private delegate Int32  fcn_erImageAllocateAndWrap(ERImage* image, UInt32 width, UInt32 height, ERImageColorModel color_model, ERImageDataType data_type, byte* data, UInt32 step);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         unsafe private delegate UInt32 fcn_erImageGetDataTypeSize(ERImageDataType data_type);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -162,13 +160,13 @@ namespace Eyedea.er
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         unsafe private delegate UInt32 fcn_erImageGetPixelDepth(ERImageColorModel color_model, ERImageDataType data_type);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        unsafe private delegate Int32 fcn_erImageCopy(ERImage* image, ERImage* image_copy);
+        unsafe private delegate Int32  fcn_erImageCopy(ERImage* image, ERImage* image_copy);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        unsafe private delegate Int32 fcn_erImageRead(ERImage* image, string filename);
+        unsafe private delegate Int32  fcn_erImageRead(ERImage* image, string filename);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        unsafe private delegate Int32 fcn_erImageWrite(ERImage* image, string filename);
+        unsafe private delegate Int32  fcn_erImageWrite(ERImage* image, string filename);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        unsafe private delegate void fcn_erImageFree(ERImage* image);
+        unsafe private delegate void   fcn_erImageFree(ERImage* image);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         unsafe private delegate string fcn_erVersion();
 
@@ -177,79 +175,75 @@ namespace Eyedea.er
         ////////
         IntPtr pDll = IntPtr.Zero;
 
-        IntPtr pErImageAllocate = IntPtr.Zero;
+        IntPtr pErImageAllocate                  =  IntPtr.Zero;
         //IntPtr pErImageAllocateBlank             =  IntPtr.Zero;
         //IntPtr pErImageAllocateAndWrap           =  IntPtr.Zero;
         //IntPtr pErImageGetDataTypeSize           =  IntPtr.Zero;
         //IntPtr pErImageGetColorModelNumChannels  =  IntPtr.Zero;
         //IntPtr pErImageGetPixelDepth             =  IntPtr.Zero;
         //IntPtr pErImageCopy                      =  IntPtr.Zero;
-        IntPtr pErImageRead = IntPtr.Zero;
-        IntPtr pErImageWrite = IntPtr.Zero;
-        IntPtr pErImageFree = IntPtr.Zero;
+        IntPtr pErImageRead                      =  IntPtr.Zero;
+        IntPtr pErImageWrite                     =  IntPtr.Zero;
+        IntPtr pErImageFree                      =  IntPtr.Zero;
         //IntPtr pErVersion                        =  IntPtr.Zero;
 
         ///////////////
         // Define delegates of functions
         ///////////////
-        fcn_erImageAllocate fcnErImageAllocate = null;
+        fcn_erImageAllocate                 fcnErImageAllocate                 = null;
         //fcn_erImageAllocateBlank            fcnErImageAllocateBlank            = null;
         //fcn_erImageAllocateAndWrap          fcnErImageAllocateAndWrap          = null;
         //fcn_erImageGetDataTypeSize          fcnErImageGetDataTypeSize          = null;
         //fcn_erImageGetColorModelNumChannels fcnErImageGetColorModelNumChannels = null;
         //fcn_erImageGetPixelDepth            fcnErImageGetPixelDepth            = null;
         //fcn_erImageCopy                     fcnErImageCopy                     = null;
-        fcn_erImageRead fcnErImageRead = null;
-        fcn_erImageWrite fcnErImageWrite = null;
-        fcn_erImageFree fcnErImageFree = null;
+        fcn_erImageRead                     fcnErImageRead                     = null;
+        fcn_erImageWrite                    fcnErImageWrite                    = null;
+        fcn_erImageFree                     fcnErImageFree                     = null;
         //fcn_erVersion                       fcnErVersion                       = null;
 
-        private IntPtr loadFunctionFromDLL(IntPtr dllPtr, string functionName)
-        {
+        private IntPtr loadFunctionFromDLL(IntPtr dllPtr, string functionName) {
             IntPtr functionPtr = NativeMethods.GetProcAddress(dllPtr, functionName);
-            if (functionPtr == IntPtr.Zero)
-            {
+            if (functionPtr == IntPtr.Zero) {
                 throw new ERException(functionName + " NULL");
             }
 
             return functionPtr;
         }
 
-        private void loadLibraryFunctions(IntPtr pDll)
-        {
-            if (pDll == IntPtr.Zero)
-            {
+        private void loadLibraryFunctions(IntPtr pDll) {
+            if (pDll == IntPtr.Zero) {
                 throw new ERException("Loading library failed!");
             }
 
             //////////////////////////
             // load functions from dll
             //////////////////////////
-            pErImageAllocate = loadFunctionFromDLL(pDll, "erImageAllocate");
+            pErImageAllocate                 = loadFunctionFromDLL(pDll, "erImageAllocate");
             /*pErImageAllocateBlank            = loadFunctionFromDLL(pDll, "erImageAllocateBlank");
             pErImageAllocateAndWrap          = loadFunctionFromDLL(pDll, "erImageAllocateAndWrap");
             pErImageGetDataTypeSize          = loadFunctionFromDLL(pDll, "erImageGetDataTypeSize");
             pErImageGetColorModelNumChannels = loadFunctionFromDLL(pDll, "erImageGetColorModelNumChannels");
             pErImageGetPixelDepth            = loadFunctionFromDLL(pDll, "erImageGetPixelDepth");
             pErImageCopy                     = loadFunctionFromDLL(pDll, "erImageCopy");*/
-            pErImageRead = loadFunctionFromDLL(pDll, "erImageRead");
-            pErImageWrite = loadFunctionFromDLL(pDll, "erImageWrite");
-            pErImageFree = loadFunctionFromDLL(pDll, "erImageFree");
+            pErImageRead                     = loadFunctionFromDLL(pDll, "erImageRead");
+            pErImageWrite                    = loadFunctionFromDLL(pDll, "erImageWrite");
+            pErImageFree                     = loadFunctionFromDLL(pDll, "erImageFree");
             //pErVersion                       = loadFunctionFromDLL(pDll, "erVersion");
 
             ///////////////////////
             // Setup delegates
             ///////////////////////
-            fcnErImageAllocate = (fcn_erImageAllocate)Marshal.GetDelegateForFunctionPointer(pErImageAllocate, typeof(fcn_erImageAllocate));
+            fcnErImageAllocate                 = (fcn_erImageAllocate)                Marshal.GetDelegateForFunctionPointer(pErImageAllocate,                 typeof(fcn_erImageAllocate));
             /*fcnErImageAllocateBlank            = (fcn_erImageAllocateBlank)           Marshal.GetDelegateForFunctionPointer(pErImageAllocateBlank,            typeof(fcn_erImageAllocateBlank));
             fcnErImageAllocateAndWrap          = (fcn_erImageAllocateAndWrap)         Marshal.GetDelegateForFunctionPointer(pErImageAllocateAndWrap,          typeof(fcn_erImageAllocateAndWrap));
             fcnErImageGetDataTypeSize          = (fcn_erImageGetDataTypeSize)         Marshal.GetDelegateForFunctionPointer(pErImageGetDataTypeSize,          typeof(fcn_erImageGetDataTypeSize));
             fcnErImageGetColorModelNumChannels = (fcn_erImageGetColorModelNumChannels)Marshal.GetDelegateForFunctionPointer(pErImageGetColorModelNumChannels, typeof(fcn_erImageGetColorModelNumChannels));
             fcnErImageGetPixelDepth            = (fcn_erImageGetPixelDepth)           Marshal.GetDelegateForFunctionPointer(pErImageGetPixelDepth,            typeof(fcn_erImageGetPixelDepth));
             fcnErImageCopy                     = (fcn_erImageCopy)                    Marshal.GetDelegateForFunctionPointer(pErImageCopy,                     typeof(fcn_erImageCopy));*/
-            fcnErImageRead = (fcn_erImageRead)Marshal.GetDelegateForFunctionPointer(pErImageRead, typeof(fcn_erImageRead));
-            fcnErImageWrite = (fcn_erImageWrite)Marshal.GetDelegateForFunctionPointer(pErImageWrite, typeof(fcn_erImageWrite));
-            fcnErImageFree = (fcn_erImageFree)Marshal.GetDelegateForFunctionPointer(pErImageFree, typeof(fcn_erImageFree));
+            fcnErImageRead                     = (fcn_erImageRead)                    Marshal.GetDelegateForFunctionPointer(pErImageRead,                     typeof(fcn_erImageRead));
+            fcnErImageWrite                    = (fcn_erImageWrite)                   Marshal.GetDelegateForFunctionPointer(pErImageWrite,                    typeof(fcn_erImageWrite));
+            fcnErImageFree                     = (fcn_erImageFree)                    Marshal.GetDelegateForFunctionPointer(pErImageFree,                     typeof(fcn_erImageFree));
             //fcnErVersion                       = (fcn_erVersion)                      Marshal.GetDelegateForFunctionPointer(pErVersion,                       typeof(fcn_erVersion));
         }
 
@@ -257,12 +251,10 @@ namespace Eyedea.er
         /// ERImage DLL initialization.
         /// </summary>
         /// <param name="dllFilePath">Path to the ERImage DLL library.</param>
-        public ERImageUtils(string dllFilePath)
-        {
+        public ERImageUtils(string dllFilePath) {
             // open dll
             pDll = NativeMethods.LoadLibrary(dllFilePath);
-            if (pDll == IntPtr.Zero)
-            {
+            if (pDll == IntPtr.Zero) {
                 throw new ERException("Loading library " + dllFilePath + " failed!");
             }
             loadLibraryFunctions(pDll);
@@ -272,24 +264,18 @@ namespace Eyedea.er
         /// ERImage DLL initialization.
         /// </summary>
         /// <param name="dllFilePath">Path to the ERImage DLL library.</param>
-        public ERImageUtils(IntPtr pDll)
-        {
+        public ERImageUtils(IntPtr pDll) {
             loadLibraryFunctions(pDll);
         }
 
-        ~ERImageUtils()
-        {
-            try
-            {
-                unsafe
-                {
-                    if (pDll != IntPtr.Zero)
-                    {
+        ~ERImageUtils() {
+            try {
+                unsafe {
+                    if (pDll != IntPtr.Zero) {
                         NativeMethods.FreeLibrary(pDll);
                     }
                 }
-            }
-            catch { }
+            } catch {}
         }
 
         /// <summary>
@@ -297,28 +283,21 @@ namespace Eyedea.er
         /// </summary>
         /// <param name="bitmap">Input bitmap to convert.</param>
         /// <returns>Created <seealso cref="ERImage"/> with input image data.</returns>
-        public ERImage csBitmapToERImage(Bitmap bitmap)
-        {
+        public ERImage csBitmapToERImage(Bitmap bitmap) {
             ERImage erImage = new ERImage();
 
             //// Select the correct color model
             ERImageColorModel color_model = ERImageColorModel.ER_IMAGE_COLORMODEL_UNK;
             // Grayscale color model - 1 byte per pixel
-            if (bitmap.PixelFormat == PixelFormat.Format8bppIndexed)
-            {
+            if (bitmap.PixelFormat == PixelFormat.Format8bppIndexed) {
                 color_model = ERImageColorModel.ER_IMAGE_COLORMODEL_GRAY;
                 // RGB color model - 3 bytes per pixel (1 byter per channel)
-            }
-            else if (bitmap.PixelFormat == PixelFormat.Format24bppRgb)
-            {
+            } else if (bitmap.PixelFormat == PixelFormat.Format24bppRgb) {
                 color_model = ERImageColorModel.ER_IMAGE_COLORMODEL_BGR;
                 // Other color models are converted to the RGB color model
-            }
-            else
-            {
+            } else {
                 Bitmap cloneImage = new Bitmap(bitmap.Width, bitmap.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-                using (Graphics gr = Graphics.FromImage(cloneImage))
-                {
+                using (Graphics gr = Graphics.FromImage(cloneImage)) {
                     gr.DrawImage(bitmap, new Rectangle(0, 0, cloneImage.Width, cloneImage.Height));
                 }
                 bitmap = cloneImage;
@@ -335,20 +314,17 @@ namespace Eyedea.er
             System.Drawing.Imaging.BitmapData bmpData =
                 bitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
                 bitmap.PixelFormat);
-            unsafe
-            {
+            unsafe {
                 // Pointer to the binary image data.
                 byte* dataPtr = (byte*)bmpData.Scan0;
                 // Allocate unmanaged ERImage. The ? also checks whether the fcnErImageAllocate is not null.
                 Int32? allocationState = fcnErImageAllocate?.Invoke(&erImage, (UInt32)bitmap.Width, (UInt32)bitmap.Height, color_model, ERImageDataType.ER_IMAGE_DATATYPE_UCHAR);
-                if (!allocationState.HasValue || allocationState != 0)
-                {
+                if (!allocationState.HasValue || allocationState != 0) {
                     throw new ERException("Image allocation failed.");
                 }
                 // Copy the image data from the Bitmap to the ERImage instance.
                 byte* erImageData = (byte*)erImage.data;
-                for (uint i = 0; i < erImage.data_size; i++)
-                {
+                for (uint i = 0; i < erImage.data_size; i++) {
                     erImageData[i] = dataPtr[i];
                 }
             }
@@ -368,27 +344,20 @@ namespace Eyedea.er
         /// <param name="image">Input image <see cref="ERImage"/> to convert.</param>
         /// <returns>Bitmap containing image data.</returns>
         /// <exception cref="ERException">When unsupported color model used (<see cref="ERImageColorModel.ER_IMAGE_COLORMODEL_YCBCR420"/>).</exception>
-        public Bitmap erImageToCsBitmap(ERImage image)
-        {
+        public Bitmap erImageToCsBitmap(ERImage image) {
             Bitmap bitmap;
             int channels = 0;
-            if (image.color_model == ERImageColorModel.ER_IMAGE_COLORMODEL_GRAY)
-            {
+            if        (image.color_model == ERImageColorModel.ER_IMAGE_COLORMODEL_GRAY) {
                 channels = 1;
                 bitmap = new Bitmap((int)image.width, (int)image.height, PixelFormat.Format8bppIndexed);
                 // Set 8 bit indexed palette to grayscale
-                for (int i = 0; i < 256; i++)
-                {
+                for (int i = 0; i < 256; i++) {
                     bitmap.Palette.Entries[i] = Color.FromArgb((byte)i, (byte)i, (byte)i);
                 }
-            }
-            else if (image.color_model == ERImageColorModel.ER_IMAGE_COLORMODEL_BGR)
-            {
+            } else if (image.color_model == ERImageColorModel.ER_IMAGE_COLORMODEL_BGR) {
                 channels = 3;
                 bitmap = new Bitmap((int)image.width, (int)image.height, PixelFormat.Format24bppRgb);
-            }
-            else
-            {
+            } else {
                 throw new ERException("Unsupported ERImage color model.");
             }
 
@@ -396,37 +365,27 @@ namespace Eyedea.er
             System.Drawing.Imaging.BitmapData bmpData =
                 bitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
                 bitmap.PixelFormat);
-            unsafe
-            {
+            unsafe {
                 // Pointer to the binary image data.
                 byte* bitmapDataPtr = (byte*)bmpData.Scan0;
-                byte* imageDataPtr = (byte*)image.data;
-                if (image.data_type == ERImageDataType.ER_IMAGE_DATATYPE_UCHAR)
-                {
-                    for (int y = 0; y < image.height; y++)
-                    {
-                        byte* bitmapLinePtr = bitmapDataPtr + (y * bmpData.Stride);
-                        byte* imageLinePtr = imageDataPtr + (y * image.step);
-                        for (int x = 0; x < channels * image.width; x++)
-                        {
+                byte* imageDataPtr  = (byte*)image.data;
+                if        (image.data_type == ERImageDataType.ER_IMAGE_DATATYPE_UCHAR) {
+                    for (int y = 0; y < image.height; y++) {
+                        byte* bitmapLinePtr = bitmapDataPtr+(y*bmpData.Stride);
+                        byte* imageLinePtr  = imageDataPtr+(y*image.step);
+                        for (int x = 0; x < channels*image.width; x++) {
                             bitmapLinePtr[x] = imageLinePtr[x];
                         }
                     }
-                }
-                else if (image.data_type == ERImageDataType.ER_IMAGE_DATATYPE_FLOAT)
-                {
-                    for (int y = 0; y < image.height; y++)
-                    {
-                        byte* bitmapLinePtr = bitmapDataPtr + (y * bmpData.Stride);
-                        float* imageLinePtr = (float*)(imageDataPtr + (y * image.step));
-                        for (int x = 0; x < channels * image.width; x++)
-                        {
-                            bitmapLinePtr[x] = (byte)(imageLinePtr[x] * 255);
+                } else if (image.data_type == ERImageDataType.ER_IMAGE_DATATYPE_FLOAT) {
+                    for (int y = 0; y < image.height; y++) {
+                        byte*  bitmapLinePtr = bitmapDataPtr+(y*bmpData.Stride);
+                        float* imageLinePtr  = (float*)(imageDataPtr+(y*image.step));
+                        for (int x = 0; x < channels*image.width; x++) {
+                            bitmapLinePtr[x] = (byte)(imageLinePtr[x]*255);
                         }
                     }
-                }
-                else
-                {
+                } else {
                     bitmap.UnlockBits(bmpData);
                     throw new ERException("Unsupported ERImage data type.");
                 }
@@ -441,15 +400,12 @@ namespace Eyedea.er
         /// </summary>
         /// <param name="filename">Path to the file to read the image from.</param>
         /// <returns>Image <seealso cref="ERImage"/> read from the file.</returns>
-        public ERImage erImageRead(string filename)
-        {
+        public ERImage erImageRead(string filename) {
             ERImage image = new ERImage();
-            unsafe
-            {
+            unsafe {
                 // Reads unmanaged ERImage. The ? also checks whether the fcnErImageRead is not null.
                 Int32? readState = fcnErImageRead?.Invoke(&image, filename);
-                if (!readState.HasValue || readState != 0)
-                {
+                if (!readState.HasValue || readState != 0) {
                     throw new ERException("Image reading failed.");
                 }
             }
@@ -462,14 +418,11 @@ namespace Eyedea.er
         /// </summary>
         /// <param name="image">Input image to write.</param>
         /// <param name="filename">Path to the file to write the image.</param>
-        public void erImageWrite(ERImage image, string filename)
-        {
-            unsafe
-            {
+        public void erImageWrite(ERImage image, string filename) {
+            unsafe {
                 // Writes unmanaged ERImage. The ? also checks whether the fcnErImageWrite is not null.
                 Int32? writeState = fcnErImageWrite?.Invoke(&image, filename);
-                if (!writeState.HasValue || writeState != 0)
-                {
+                if (!writeState.HasValue || writeState != 0) {
                     throw new ERException("Image writing failed.");
                 }
             }
@@ -479,12 +432,9 @@ namespace Eyedea.er
         /// Frees the input <seealso cref="ERImage"/>.
         /// </summary>
         /// <param name="image">Input image to free.</param>
-        public void erImageFree(ref ERImage image)
-        {
-            unsafe
-            {
-                fixed (ERImage* imagePtr = &image)
-                {
+        public void erImageFree(ref ERImage image) {
+            unsafe {
+                fixed (ERImage* imagePtr = &image) {
                     fcnErImageFree?.Invoke(imagePtr);
                 }
             }
