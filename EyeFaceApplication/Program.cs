@@ -48,108 +48,42 @@ using System.Drawing;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using Newtonsoft.Json.Linq;
-using System.Data.SqlClient;
 using System.Threading;
 
-using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Core;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace EyeFaceApplication
 {
     class Program
     {
-        //private const string EYEFACE_DIR = "..\\..\\eyefacesdk";
-        //private const string EYEFACE_DIR = "C:\\Users\\Innovation\\Documents\\GitHub\\EyeFaceApplication\\eyefacesdk";
-        private const string EYEFACE_DIR = "C:\\Users\\Innovation\\Documents\\GitHub\\EyeFaceServiceV2\\EyeFaceApplication\\eyefacesdk";
+        private const string EYEFACE_DIR = "..\\..\\eyefacesdk";
         private const string CONFIG_INI = "config.ini";
 
-        //My constant
-        private const double limitTime = -5;
-        private const string ProjectName = "3D Modeler";
-        private const int adjust_variable_for_attentionTime = 78;
+        //My constants
+        private const double limitTime = -300000;                            //After an inactivity of limitTime minute, the system consider that this is a new interaction  
+        private const string ProjectName = "3D Modeler";                //Name of the project where the application is installed
+        private const int adjust_variable_for_attentionTime = 75;       //To compensate the difference between real attention_time and the one given by the sdk
 
         public static int Main(string[] args)
         {
             try
             {
                 //Automatic facial recognition
-                efEyeFaceStandardExample();
-              
-                //Manual facial recognition. 
-                /*int personID = 1;
-                //int projectID = 3;
-                int attention_time = 0;
-                int milliseconds = 1000;
-                string emotion = "Not Smiling";
-           
-                //We will here get all information about the person's face and store it into a JObject
-                while (!(Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape))
-                {
-                    JTokenWriter person = new JTokenWriter();
-                    //Save data into the JSON
-                    Console.WriteLine("Data in the JSON \n");
-                    person.WriteStartObject();
-
-                    person.WritePropertyName("PersonID");
-                    person.WriteValue(personID);
-
-                    person.WritePropertyName("Gender");
-                    person.WriteValue("Male");
-
-                    person.WritePropertyName("Age");
-                    person.WriteValue(23);
-
-                    person.WritePropertyName("Emotion");
-                    person.WriteValue(emotion);
-
-                    person.WritePropertyName("Ancestry");
-                    person.WriteValue("Africain");
-
-                    person.WritePropertyName("AttentionTime");
-                    person.WriteValue(attention_time);
-
-                    person.WritePropertyName("ProjectName");
-                    person.WriteValue("3D Modeler");
-
-                    person.WriteEndObject();
-
-                    JObject o = (JObject)person.Token;
-                    Console.WriteLine(o.ToString());
-
-                    //Now we can store the JObject into our database
-                    saveDataIntoEyeFaceDB(o);
-
-                    attention_time += 1;
-                    if (attention_time >= 10 & attention_time <= 20)
-                    {
-                        emotion = "Smiling";
-                    } else if (attention_time > 20)
-                    {
-                        emotion = "Not Smiling";
-                    } else
-                    {
-                        //Nothing
-                    }
-                    personID += 1;
-
-                    Thread.Sleep(milliseconds);
-                }*/
-                
+                efEyeFaceStandardExample();        
             }
             catch (Exception e)
             {
                 System.Console.WriteLine("ERROR: efEyeFaceStandardExample() failed: " + e.ToString());
-                Console.Read();
+                //If you want to capture errors in terminal
+                //Console.Read();
                 return -1;
             }
             return 0;
         }
 
-        //Functions that can be use for save taken image into a directory
+        //Functions that can be used for save taken image into a directory
         private static void renderAndSaveImage(ERImage image,
                                                EfTrackInfoArray trackinfoArray,
                                                EfCsSDK efCsSDK, string imageSavePath)
@@ -231,14 +165,6 @@ namespace EyeFaceApplication
             var db = client.GetDatabase("EyeFaceDB");
             var collection = db.GetCollection<People>("People");
 
-            int satisfaction = 0;
-            ////Check of satisfied value
-            //ENHANCE! We will in the future directly get the int value from emotion. 
-            //satisfaction = checkSatisfaction((string)o.GetValue("Emotion"));
-
-            //bool myVar = await UpdatePerson(13, 23);
-            //Console.WriteLine(myVar);
-
             var filter = Builders<People>.Filter.Eq("person_id", new_person.person_id);
             var result = collection.Find(filter).ToList();
 
@@ -249,7 +175,7 @@ namespace EyeFaceApplication
                 var builder = Builders<People>.Filter;
                 filter = builder.Eq("person_id", new_person.person_id)
                          & builder.Eq("attractions.project_name", new_person.attractions[0].project_name)
-                         & builder.Gt("attractions.dateUTC", DateTime.UtcNow.AddMinutes(limitTime));
+                         & builder.Gt("attractions.dateUTC", DateTime.UtcNow.AddMilliseconds(limitTime));
                 //& builder.Eq("attractions.satisfied", 0);
                 result = collection.Find(filter).ToList();
                 //Console.Write("Number of attraction on same project in this our : ");
@@ -298,52 +224,8 @@ namespace EyeFaceApplication
             }
             else
             {
-                //This person does not exist yet. We will create a table for him.
-                Attraction person_Attraction = new Attraction()
-                {
-                    project_name = new_person.attractions[0].project_name,
-                    dateUTC = DateTime.UtcNow,
-                    attention_time = new_person.attractions[0].attention_time,
-                    satisfied = new_person.attractions[0].satisfied
-                };
-                List<Attraction> myList = new List<Attraction>();
-                myList.Add(person_Attraction);
-
-                People person = new People
-                {
-                    person_id = new_person.person_id,
-                    gender = new_person.gender,
-                    age = new_person.age,
-                    ancestry = new_person.ancestry,
-                    attractions = myList
-                };
-                collection.InsertOne(person);
+                collection.InsertOne(new_person);
             }
-
-
-            ////Exemple of insertion into the EyeFaceDB database
-            //Attraction rudja_Attraction = new Attraction
-            //{
-            //    project_name = (string)o.GetValue("ProjectName"),
-            //    dateUTC = DateTime.UtcNow,
-            //    attention_time = (double)o.GetValue("Attention_time"),
-            //    satisfied = satisfaction
-            //};
-
-            //List<Attraction> myList = new List<Attraction>();
-            //myList.Add(rudja_Attraction);
-
-            //People rudja = new People
-            //{
-            //    person_id = (int)o.GetValue("PersonID"),
-            //    gender = (string)o.GetValue("Gender"),
-            //    age = (int)o.GetValue("Age"),
-            //    ancestry = (string)o.GetValue("Ancestry"),
-            //    attractions = myList
-            //};
-            //collection.InsertOneAsync(rudja);   //With async method, no need to wait that Mongo finalize the operation
-            //Console.WriteLine("The people have been inserted in the database");
-
         }
 
 
@@ -357,18 +239,6 @@ namespace EyeFaceApplication
             EfCsSDK efCsSDK = new EfCsSDK(EYEFACE_DIR);
             System.Console.WriteLine("EyeFace C# interface initialized.");
 
-            /*
-            // Sentinel LDK license check                            
-            long key = efCsSDK.efHaspGetCurrentLoginKeyId();
- 
-            EfHaspTime expDate;
-            if (!efCsSDK.efHaspGetExpirationDate(key, out expDate)) {
-                System.Console.Error.WriteLine("ERROR: HASP license verification failed.");
-                return;
-            }
-            System.Console.WriteLine("HASP key = " + key.ToString() + " license expiration date [YYYY/MM/DD]: " + expDate.year + "/" + expDate.month.ToString() + "/" + expDate.day.ToString());
-            */
-
             // init EyeFace                                               
             System.Console.Write("EyeFace init ... ");
             bool initState = efCsSDK.efInitEyeFace(EYEFACE_DIR, EYEFACE_DIR, CONFIG_INI);
@@ -379,7 +249,9 @@ namespace EyeFaceApplication
             }
             System.Console.WriteLine("done.\n");
 
-            VideoCapture capture = new VideoCapture();                                          //create a camera capture. Work with last EmguCV version 3.2
+            //create a camera capture. Work with last EmguCV version 3.2
+            //We can select the camera index as parameter in VideoCapture function
+            VideoCapture capture = new VideoCapture();                                  
             Mat captureFrame = null;
 
             int iImgNo = 0;
@@ -435,9 +307,10 @@ namespace EyeFaceApplication
                 // Get track infos object from the image
                 EfTrackInfoArray trackInfoArray = efCsSDK.efGetTrackInfo();
 
-                /// We will create a JSON object and fill it with the data we need
+                /// We will create a People object and fill it with the data given by eyeface SDK
                 /// Before we need to verify that all datas are set before stocking them
                 /// We free the image taken when we are done with it. 
+                /// Finally we send the People object to our database
                 JTokenWriter person = new JTokenWriter();
                 for (int i = 0; i < trackInfoArray.num_tracks; i++)         //num_tracks equal to the number of person detected on the image
                 {
@@ -449,6 +322,8 @@ namespace EyeFaceApplication
                                                                     && trackInfoArray.track_info[i].face_attributes.emotion.recognized
                                                                     && trackInfoArray.track_info[i].face_attributes.ancestry.recognized)
                     {
+                        //*****************************************************
+                        //Here you can visualize your data 
                         //Save data into the JSON
                         Console.WriteLine("Data in the JSON \n");
                         person.WriteStartObject();
@@ -457,14 +332,12 @@ namespace EyeFaceApplication
                         person.WriteValue(trackInfoArray.track_info[i].person_id);
 
                         person.WritePropertyName("Gender");
-                        //person.WriteValue(attributesArray.face_attributes[i].gender.ToString());
                         person.WriteValue(trackInfoArray.track_info[i].face_attributes.gender.ToString());
 
                         person.WritePropertyName("Age");
                         person.WriteValue(trackInfoArray.track_info[i].face_attributes.age.value);
 
                         person.WritePropertyName("Emotion");
-                        //Better to get the int value from emotion
                         person.WriteValue(trackInfoArray.track_info[i].face_attributes.emotion.ToString());
 
                         person.WritePropertyName("Ancestry");
@@ -474,13 +347,13 @@ namespace EyeFaceApplication
                         person.WriteValue(trackInfoArray.track_info[i].attention_time);
 
                         person.WritePropertyName("ProjectName");
-                        person.WriteValue("3D Modeler");
+                        person.WriteValue(ProjectName);
 
                         person.WriteEndObject();
 
                         JObject o = (JObject)person.Token;
                         Console.WriteLine(o.ToString());
-
+                        //******************************************************
 
                         //Here we fill a person object to send it to the save funtion into database
                         Attraction person_Attraction = new Attraction()
@@ -501,13 +374,12 @@ namespace EyeFaceApplication
                             ancestry = trackInfoArray.track_info[i].face_attributes.ancestry.ToString(),
                             attractions = myList
                         };
-                        Console.WriteLine(new_person.ToString());
 
                         // free the image
                         efCsSDK.erImageFree(ref image);
 
                         saveDataIntoEyeFaceDB(new_person);
-                        Thread.Sleep(adjust_variable_for_attentionTime);
+                        //Thread.Sleep(adjust_variable_for_attentionTime);
                     }
                     else
                     {
